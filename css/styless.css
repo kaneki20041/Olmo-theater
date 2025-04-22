@@ -1,0 +1,126 @@
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  header {
+    width: 100%;
+  }
+  
+  .navbar-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #e74c3c;
+    color: white;
+    padding: 10px 20px;
+    flex-wrap: wrap;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo img {
+    height: 40px;
+    margin-right: 10px;
+  }
+  
+  .logo span {
+    font-weight: bold;
+    font-size: 18px;
+  }
+  
+  .top-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  
+  .top-right a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+  .social-icons a {
+    color: white;
+    margin: 0 5px;
+    font-size: 18px;
+  }
+  
+  .search-bar {
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-bar input {
+    padding: 5px;
+    border-radius: 5px 0 0 5px;
+    border: none;
+    outline: none;
+  }
+  
+  .search-bar button {
+    background: white;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  
+  .search-bar i {
+    color: #e74c3c;
+  }
+  
+  .navbar-bottom {
+    display: flex;
+    justify-content: center;
+    background-color: #f1f1f1;
+    padding: 10px 0;
+    flex-wrap: wrap;
+  }
+  
+  .navbar-bottom a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: #222;
+    font-weight: bold;
+  }
+  
+  .navbar-bottom a:hover {
+    text-decoration: underline;
+  }
+  
+  .carousel {
+    width: 100%;
+    max-width: 800px;
+    margin: 30px auto;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  }
+  
+  .carousel-container {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  .carousel-slide {
+    min-width: 100%;
+    transition: opacity 0.5s ease-in-out;
+    display: none;
+  }
+  
+  .carousel-slide.active {
+    display: block;
+  }
+  
+  .carousel-slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  
