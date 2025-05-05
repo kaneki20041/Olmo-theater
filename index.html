@@ -20,7 +20,7 @@
         <span>OLMO TEATRO</span>
       </div>
       <div class="top-right">
-        <a href="#">Preguntas frecuentes</a>
+        <a href="#">Consultas frecuentes</a>
         <div class="social-icons">
           <a href="#"><i class="fab fa-facebook-f"></i></a>
           <a href="#"><i class="fab fa-instagram"></i></a>
@@ -39,24 +39,39 @@
       <a href="#nosotros">NOSOTROS</a>
       <a href="#espectaculos">ESPECTÁCULOS</a>
       <a href="#talleres">TALLERES</a>
-      <a href="#consultas">CONSULTAS</a>
+      <a href="#ubicanos">UBÍCANOS</a>
     </nav>
     
   </header>
 
   <section id="inicio" class="carousel">
-    <div class="carousel-container">
-      <div class="carousel-slide active">
-        <img src="https://pbs.twimg.com/media/DhgcFBkW0AIQD0-.jpg:large" alt="Imagen 1">
+    <div class="carousel-wrapper">
+      <button class="carousel-btn prev" id="prevBtn">
+        <svg viewBox="0 0 24 24" class="icon">
+          <circle cx="12" cy="12" r="12" fill="black"/>
+          <path d="M15 18L9 12L15 6" fill="none" stroke="#e1b700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="carousel-container">
+        <div class="carousel-slide active">
+          <img src="https://pbs.twimg.com/media/DhgcFBkW0AIQD0-.jpg:large" alt="Imagen 1">
+        </div>
+        <div class="carousel-slide">
+          <img src="dia_titere.png" alt="Imagen 2">
+        </div>
+        <div class="carousel-slide">
+          <img src="talleres.png" alt="Imagen 3">
+        </div>
       </div>
-      <div class="carousel-slide">
-        <img src="dia_titere.png" alt="Imagen 2">
-      </div>
-      <div class="carousel-slide">
-        <img src="talleres.png" alt="Imagen 3">
-      </div>
+      <button class="carousel-btn next" id="nextBtn">
+        <svg viewBox="0 0 24 24" class="icon">
+          <circle cx="12" cy="12" r="12" fill="black"/>
+          <path d="M9 6L15 12L9 18" fill="none" stroke="#e1b700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
   </section>
+  
   
   <section id="nosotros" class="starry-background">
     <div class="container">
@@ -75,12 +90,37 @@
     </div>
   </section>
 
-
   <section id="espectaculos">
-    <h2>Espectáculos</h2>
-    <p>Próximas funciones y obras en cartelera.</p>
+    <h2 class="titulo-funcion">La función de la semana</h2>
+    
+    <div class="funcion-contenedor">
+      <div class="funcion-imagen">
+        <img src="fiesta_del_sol.png" alt="La fiesta del SOL">
+      </div>
+      
+      <div class="funcion-info">
+        <h3 class="funcion-titulo">La fiesta del SOL</h3>
+        <p class="funcion-descripcion">Una escenografía centrada en las fiestas paganas del Dios Sol con juegos y más... APT</p>
+        
+        <div class="elenco">
+          <h4 class="elenco-titulo">ELENCO:</h4>
+          <div class="elenco-fotos">
+            <div class="actor-foto"></div>
+            <div class="actor-foto"></div>
+            <div class="actor-foto"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
   
+
+  <section id="talleres">
+  </section>
+
+  <section id="Ubicanos">
+  </section>
+
   <script src="https://kit.fontawesome.com/a2e7a6c6c4.js" crossorigin="anonymous"></script>
   <script src="js/script.js"></script>
 </body>
