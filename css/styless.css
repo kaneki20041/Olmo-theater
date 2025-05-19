@@ -9,7 +9,7 @@
 body {
   margin: 0;
   font-family: 'Arial', sans-serif;
-  background-color: #050a24;
+  background-color: #000000;
   color: white; 
   position: relative;
 }
@@ -40,4 +40,157 @@ section {
 
 .navbar-bottom {
   background-color: rgba(241, 241, 241, 0.9);
+}
+
+
+
+/* ===================== HEADER AJUSTADO ===================== */
+.navbar-top {
+  background-color: #971931 ; /* rojo granate */
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+
+.logo-centered {
+  text-align: center;
+}
+
+.logo-centered img {
+  height: 60px;
+  margin-bottom: 10px;
+}
+
+.logo-centered h1 {
+  font-family: 'Georgia', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #FFA300; /* mostaza */
+  margin: 0;
+}
+
+.search-bar {
+  margin: 10px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.search-bar input {
+  padding: 8px;
+  border-radius: 5px 0 0 5px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.search-bar button {
+  padding: 8px 10px;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  background-color: #FFA300;
+  cursor: pointer;
+}
+
+.search-bar i {
+  color: #1c1c1c;
+}
+
+/* ===================== NAVBAR ===================== */
+.navbar-bottom {
+  background-color: #971931;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 10px 0;
+}
+
+.navbar-bottom a {
+  color: #fff;
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.navbar-bottom a:hover {
+  color: #FFA300;
+}
+
+/* ===================== FOOTER AJUSTADO ===================== */
+.footer {
+  background-color: #000000;
+  color: white;
+  padding: 40px 0;
+  font-family: Arial, sans-serif;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  padding: 0 20px;
+}
+
+.footer-section {
+  margin: 20px 0;
+  flex: 1 1 300px;
+}
+
+.footer-section h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #FFA300;
+}
+
+.footer-section p {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.social-icons-footer {
+  margin-top: 10px;
+}
+
+.social-icons-footer a {
+  font-size: 22px;
+  color: white;
+  margin-right: 12px;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.social-icons-footer a:hover {
+  color: #FFA300;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.footer-bottom a {
+  color: #ccc;
+  margin: 0 10px;
+  text-decoration: none;
+}
+
+.footer-bottom a:hover {
+  color: #FFA300;
+}
+
+/* ===================== BODY / BACKGROUND ===================== */
+body {
+  background-color: #050a24;
+  color: white;
+}
+
+/* Carousel highlight color */
+.carousel-wrapper {
+  background-color: #FFA300;
 }
