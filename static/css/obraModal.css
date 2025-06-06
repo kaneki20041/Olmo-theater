@@ -252,6 +252,24 @@
   max-width: 600px;
 }
 
+.obra-proximamente {
+  width: 220px;
+  height: auto;
+  aspect-ratio: 3 / 4; /* Mantiene proporción similar a las imágenes */
+  background-color: #000;
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+  padding: 20px;
+}
+
+
 /* Ajustes para tamaños de pantalla pequeños */
 @media (max-width: 576px) {
   .fechas-grid {
@@ -283,5 +301,9 @@
   
   .modal-info {
     width: 100%;
+  }
+    .modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
   }
 }

@@ -6,7 +6,7 @@
   text-align: center;
   color: white;
   background-size: cover;
-  padding: 200px 50px; /* Más espacio vertical */
+  padding: 200px 50px 40px 50px;
   scroll-margin-top: -250px;
 }
 
@@ -78,4 +78,27 @@
   transform: scale(1.07);
   box-shadow: 0 8px 16px rgba(0,0,0,0.6);
 }
+
+@media (max-width: 576px) {
+  .mes-selector {
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  #currentMonth {
+    font-size: 18px;
+    padding: 8px 16px;
+    width: auto;
+    max-width: 60vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mes-selector button {
+    font-size: 20px;
+    padding: 8px 12px;
+  }
+}
+
+
 

@@ -1,26 +1,24 @@
 export function initOlmobras() {
-  const obrasPorMes = {
-    "Julio": [
+const obrasPorMes = {
+  "Julio": {
+    activarDesde: "2025-05-05",
+    obras: [
       {
         imagen: "/static/images/obra1.png",
         titulo: "LA PRINCESA Y EL DRAGÓN",
         descripcion: "Una escenografía centrada en las fiestas paganas del Dios Sol con juegos y más... APT",
-          fechas: [
+        fechas: [
           { dia: "17", mes: "mayo" },
           { dia: "24", mes: "mayo" },
           { dia: "31", mes: "mayo" }
         ],
         elenco: ["Graysit Sarango", "Douglas Chotcón", "Jesús José Martín"]
-      },
-      {
-        imagen: "/static/images/obra2.jpg",
-        titulo: " Pink Floyd en movimiento",
-        descripcion: "The Dark Side of the Moon de Pink Floyd es un viaje sonoro y existencial que abordó temas universales como el tiempo, la locura, la muerte y la alienación. Este espectáculo de danza contemporánea reinterpreta la esencia de ese universo. No es solo un tributo. Es una experiencia. Una invitación a sumergirse en el lado oscuro... y danzarlo",
-        fechas: "16, 17, 23, 30 y 31 de mayo",
-        elenco: ["Actor 1", "Actor 2"]
       }
-    ],
-    "Agosto": [
+    ]
+  },
+  "Agosto": {
+    activarDesde: "2025-08-01",
+    obras: [
       {
         imagen: "/static/img/obra3.png",
         titulo: "Obra de Agosto",
@@ -29,7 +27,21 @@ export function initOlmobras() {
         elenco: ["Actriz X", "Actor Y"]
       }
     ]
-  };
+  },
+    "Setiembre": {
+    activarDesde: "2025-08-01",
+    obras: [
+      {
+        imagen: "/static/img/obra3.png",
+        titulo: "Obra de Agosto",
+        descripcion: "Obra especial del mes de agosto.",
+        fechas: "5, 12, 19 de agosto",
+        elenco: ["Actriz X", "Actor Y"]
+      }
+    ]
+  }
+};
+
 
   let meses = Object.keys(obrasPorMes);
   let indiceMes = 0;
@@ -43,23 +55,37 @@ export function initOlmobras() {
   const modalBody = document.getElementById("modalBody");
   const cerrarModal = document.getElementById("cerrarModal");
 
-  function actualizarObras() {
-    const mesActual = meses[indiceMes];
-    mesSpan.textContent = mesActual;
-    obrasContainer.innerHTML = "";
+function actualizarObras() {
+  const mesActual = meses[indiceMes];
+  mesSpan.textContent = mesActual;
+  obrasContainer.innerHTML = "";
 
-    obrasPorMes[mesActual].forEach((obra, index) => {
-      const img = document.createElement("img");
-      img.src = obra.imagen;
-      img.alt = obra.titulo;
-      img.classList.add("obra-img");
-      img.style.cursor = "pointer";
+  const datosMes = obrasPorMes[mesActual];
+  const hoy = new Date();
+  const fechaActivacion = new Date(datosMes.activarDesde);
 
-      img.addEventListener("click", () => mostrarModal(obra));
-
-      obrasContainer.appendChild(img);
-    });
+  if (hoy < fechaActivacion) {
+    // Mostrar el cartel de "Próximamente"
+    const proximoDiv = document.createElement("div");
+proximoDiv.className = "obra-proximamente";
+proximoDiv.textContent = "¡Próximamente!";
+    obrasContainer.appendChild(proximoDiv);
+    return;
   }
+
+  // Mostrar obras normalmente
+  datosMes.obras.forEach((obra) => {
+    const img = document.createElement("img");
+    img.src = obra.imagen;
+    img.alt = obra.titulo;
+    img.classList.add("obra-img");
+    img.style.cursor = "pointer";
+
+    img.addEventListener("click", () => mostrarModal(obra));
+    obrasContainer.appendChild(img);
+  });
+}
+
 
   
 function mostrarModal(obra) {
@@ -169,9 +195,10 @@ window.onclick = function (event) {
 };
 
 
-  cerrarModal.onclick = function () {
-    modal.classList.add("hidden");
-  };
+cerrarModal.onclick = function () {
+  modal.classList.add("hidden");
+  document.body.style.overflow = 'auto';
+};
 
   btnAnterior.addEventListener("click", () => {
     indiceMes = (indiceMes - 1 + meses.length) % meses.length;
