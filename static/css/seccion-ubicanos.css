@@ -1,0 +1,87 @@
+.seccion-ubicanos {
+  padding: 60px 60px;
+  color: #eee;
+}
+
+.titulo-ubicanos-centrado {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.titulo-ubicanos-centrado h2 {
+  font-size: 32px;
+  color: #e1b700;
+}
+
+.titulo-ubicanos-centrado h3 {
+  font-size: 18px;
+  color: #ccc;
+  margin-top: 10px;
+}
+
+.contenido-ubicanos {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.info-ubicacion {
+  flex: 0 0 60%;
+  font-size: 20px;
+  line-height: 1.6;
+}
+
+.mapa-ubicacion {
+  flex: 0 0 40%;
+  height: 100%;
+}
+
+.mapa-ubicacion iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  border: none;
+}
+
+.datos-contacto {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.datos-contacto li {
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.datos-contacto li::before {
+  content: '📍';
+  margin-right: 8px;
+  color: #e1b700;
+}
+
+.telefono::before {
+  content: '📞';
+}
+
+.correo::before {
+  content: '✉️';
+}
+
+@media (max-width: 768px) {
+  .contenido-ubicanos {
+    flex-direction: column;
+  }
+
+  .info-ubicacion, .mapa-ubicacion {
+    flex: 1 0 100%;
+  }
+
+  .mapa-ubicacion {
+    margin-top: 20px;
+  }
+}

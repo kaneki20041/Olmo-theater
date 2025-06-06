@@ -1,0 +1,287 @@
+.modal {
+  background-color: rgba(0, 0, 0, 0.5); /* semi transparente */
+  backdrop-filter: blur(3px); /* desenfoque suave del fondo */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+
+.modal-content {
+  background-color: #0a1332; 
+  margin: 5% auto;
+  padding: 25px;
+  width: 800px;
+  max-width: 90vw;
+  border-radius: 10px;
+  position: relative;
+  box-sizing: border-box;
+  color: white;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(white, rgba(255, 255, 255, 0.2) 2px, transparent 2px),
+    radial-gradient(white, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+    radial-gradient(white, rgba(255, 255, 255, 0.1) 2px, transparent 2px);
+  background-size: 550px 550px, 350px 350px, 250px 250px;
+  background-position: 0 0, 40px 60px, 130px 270px;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.close {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  color: white;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.close:hover {
+  opacity: 1;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  align-items: center; /* Centrar verticalmente los elementos */
+  width: 100%;
+}
+
+.modal-img {
+  width: 40%; /* Asignar un porcentaje del ancho total del modal */
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-img img {
+  width: 100%; /* Usar el 100% del ancho disponible del contenedor */
+  height: auto; /* Mantener la proporción de aspecto */
+  max-height: 400px; /* Altura máxima para evitar que sea demasiado grande */
+  object-fit: contain; /* Asegura que toda la imagen sea visible sin recortes */
+}
+
+
+.modal-info {
+  flex: 1; /* Tomar el espacio restante */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  padding: 0;
+}
+
+
+
+.modal-info h4 {
+  font-size: 20px;
+  margin: 0;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.modal-info h3 {
+  font-size: 35px;
+  margin: 0;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: -1.5px; /* Valor negativo más pronunciado para reducir drásticamente el espacio entre letras */
+  word-spacing: -3px; /* Reducir también el espacio entre palabras */
+  text-align: center;
+}
+
+
+.modal-info p {
+  font-size: 16px;
+  color: #e0e0e0;
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.modal-info p#modalObraFechas {
+  font-size: 18px;
+  font-weight: bold;
+  color: #f8c71c; /* Color amarillo similar al de la imagen */
+  margin: 5px 0;
+}
+
+.modal-elenco {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 10px;
+  min-width: 300px; /* o ajusta según tu diseño */
+  text-align: center;
+}
+
+
+.actor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100px;     /* Asegura uniformidad */
+  min-width: 100px; /* Asegura espacio entre ellos incluso si hay pocos */
+}
+
+
+.actor-circle {
+  width: 70px;
+  height: 70px;
+  background: #3498db;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.actor-name {
+  min-width: 70px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.fechas-reserva {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 15px 0;
+  width: 100%;
+}
+
+.fechas-reserva p {
+  font-size: 18px;
+  font-weight: bold;
+  color: #f8c71c; /* Color amarillo similar al de la imagen */
+  margin: 0;
+}
+
+ /* Estilos para el grid de fechas */
+.fechas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columnas de igual tamaño */
+  gap: 10px;
+  width: 100%;
+  margin: 15px 0;
+  justify-content: center;
+}
+
+.fecha-item {
+  background-color: #4a90e2;
+  color: white;
+  padding: 8px 10px;
+  border-radius: 15px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: row; /* Cambiado a horizontal */
+  align-items: center;
+  justify-content: center;
+  gap: 5px; /* Espacio entre día y mes */
+  min-height: 40px;
+}
+
+
+.fecha-item:hover {
+  background-color: #d43f3f; /* Color rojo al pasar el mouse */
+  transform: scale(1.05);
+}
+
+.fecha-dia {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.fecha-mes {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+/* Para asegurar que el layout se vea bien con menos de 6 fechas */
+.fechas-grid.fechas-1 {
+  grid-template-columns: 1fr;
+  max-width: 200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.fechas-grid.fechas-2 {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.fechas-grid.fechas-3, 
+.fechas-grid.fechas-4, 
+.fechas-grid.fechas-5,
+.fechas-grid.fechas-6 {
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 600px;
+}
+
+/* Ajustes para tamaños de pantalla pequeños */
+@media (max-width: 576px) {
+  .fechas-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .fechas-grid.fechas-1 {
+    grid-template-columns: 1fr;
+  }
+}
+#modalObraFechas {
+  flex-grow: 0; 
+  white-space: nowrap; 
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .modal-body {
+    flex-direction: column;
+  }
+  
+  .modal-img {
+    width: 80%;
+    margin-bottom: 20px;
+  }
+  
+  .modal-info {
+    width: 100%;
+  }
+}

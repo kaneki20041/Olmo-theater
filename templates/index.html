@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Teatro Olmo</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styless.css') }}">
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  crossorigin="anonymous"
+/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+  <header>
+    <div class="navbar-top">
+      <div class="logo">
+        <img src="https://media.licdn.com/dms/image/v2/C560BAQEHXlD-uNfmLw/company-logo_200_200/company-logo_200_200/0/1631335379518?e=2147483647&v=beta&t=nTeCvK7WLKT2jrBWHawfwy5ahZnkFGKKW2xl2ljEhTE" alt="Logo" />
+        <span>OLMO TEATRO</span>
+      </div>
+      <div class="top-right">
+        <a href="#">Consultas frecuentes</a>
+        <div class="social-icons">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
+          <a href="#"><i class="fab fa-spotify"></i></a>
+        </div>
+        <div class="search-bar">
+        </div>
+      </div>
+    </div>
+    <nav class="navbar-bottom">
+      <!-- Botón hamburguesa para móvil (oculto por defecto) -->
+      <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      
+      <!-- Navegación original (se mantiene igual) -->
+      <div class="nav-links">
+        <a href="#inicio">INICIO</a>
+        <a href="#nosotros">NOSOTROS</a>    
+        <a href="#espectaculos">ESPECTÁCULOS</a>
+        <a href="#servicios">SERVICIOS</a>
+        <a href="#ubicanos">UBÍCANOS</a>
+      </div>
+    </nav>
+    
+  </header>
+
+  <section id="inicio" class="carousel">
+    <button class="carousel-btn prev" id="prevBtn">
+      <svg viewBox="0 0 24 24" class="icon">
+        <circle cx="12" cy="12" r="12" fill="black"/>
+        <path d="M15 18L9 12L15 6" fill="none" stroke="#e1b700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  
+    <div class="carousel-container">
+      
+      <div class="carousel-track">
+        <div class="carousel-slide active">
+          <img src="{{ url_for('static', filename='images/1.svg') }}" alt="Imagen 1">
+        </div>
+        <div class="carousel-slide">
+          <img src="{{ url_for('static', filename='images/2.svg') }}" alt="Imagen 1">
+        </div>
+        <div class="carousel-slide">
+          <img src="{{ url_for('static', filename='images/3.svg') }}" alt="Imagen 3">
+        </div>
+                <div class="carousel-slide">
+          <img src="{{ url_for('static', filename='images/4.svg') }}" alt="Imagen 4">
+        </div>
+      </div>
+  
+    </div>
+  
+    <button class="carousel-btn next" id="nextBtn">
+      <svg viewBox="0 0 24 24" class="icon">
+        <circle cx="12" cy="12" r="12" fill="black"/>
+        <path d="M9 6L15 12L9 18" fill="none" stroke="#e1b700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </section>
+  
+  <section id="nosotros" class="starry-background">
+    <div class="container">
+      <div class="nosotros-content">
+        <div class="left-side">
+          <div class="anniversary-logo">
+            <div class="circle-image">
+            </div>
+          </div>
+        </div>
+        <div class="right-side">
+          <h2 class="section-title">¿Quiénes somos?</h2> <br>
+          <p class="section-description">Olmo Teatro es una asociación cultural sin fines de lucro con más de cuatro décadas de trayectoria en artes escénicas. Fundada en 1980 en Trujillo, Perú, utilizamos el teatro como herramienta de reflexión sobre la realidad social. A lo largo de los años, hemos llevado espectáculos, talleres y actividades formativas a públicos de todas las edades.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<br><br>
+<section id="espectaculos">
+  <br>
+  <h2>Olmobras</h2>
+  <br>
+  <div class="mes-selector">
+    <button id="btnAnterior">&#10094;</button>
+    <span id="currentMonth"></span>
+    <button id="btnSiguiente">&#10095;</button>
+  </div>
+  <div class="obras-container" id="obrasContainer">
+  </div>
+</section>
+
+<section id="servicios">
+<div class="servicios-container">
+  <h2 class="servicios-title">SERVICIOS</h2>
+  
+  <div class="filters-container">
+    <div class="filter-option active" data-filter="talleres-ninos">
+      <div class="filter-radio"></div>
+      <span class="filter-label">Talleres niños</span>
+    </div>
+    <div class="filter-option" data-filter="talleres-adultos">
+      <div class="filter-radio"></div>
+      <span class="filter-label">Talleres adultos</span>
+    </div>
+    <div class="filter-option" data-filter="contratos">
+      <div class="filter-radio"></div>
+      <span class="filter-label">Contratos</span>
+    </div>
+    <div class="filter-option" data-filter="servicios-pre-funcion">
+      <div class="filter-radio"></div>
+      <span class="filter-label">Servicios pre-función</span>
+    </div>
+  </div>
+
+  <div class="services-grid loading" id="servicesGrid">
+    
+    <!-- Talleres para niños -->
+    <div class="service-card" data-category="talleres-ninos">
+      <img src="{{ url_for('static', filename='images/talleres-ninos-1.jpg') }}" alt="Talleres de Verano Niños">
+    </div>
+
+    <div class="service-card" data-category="talleres-ninos">
+      <img src="{{ url_for('static', filename='images/talleres-ninos-2.jpg') }}" alt="Talleres Teatro Musical">
+    </div>    
+    
+    <div class="service-card" data-category="talleres-ninos">
+      <img src="{{ url_for('static', filename='images/talleres-ninos-3.jpg') }}" alt="Talleres Teatro Musical">
+    </div>    
+    
+    <div class="service-card" data-category="talleres-ninos">
+      <img src="{{ url_for('static', filename='images/talleres-ninos-4.jpg') }}" alt="Talleres Teatro Musical">
+    </div>
+
+    
+    
+    <!-- Talleres para adultos -->
+    <div class="service-card" data-category="talleres-adultos">
+      <img src="{{ url_for('static', filename='images/talleres-adultos-1.jpg') }}" alt="Talleres Adultos 1">
+    </div>
+
+    <div class="service-card" data-category="talleres-adultos">
+      <img src="{{ url_for('static', filename='images/talleres-adultos-2.jpg') }}" alt="Talleres Adultos 2">
+    </div>    
+    
+    <div class="service-card" data-category="talleres-adultos">
+      <img src="{{ url_for('static', filename='images/talleres-adultos-3.jpg') }}" alt="Talleres Adultos 2">
+    </div>    
+    
+    <div class="service-card" data-category="talleres-adultos">
+      <img src="{{ url_for('static', filename='images/talleres-adultos-4.jpg') }}" alt="Talleres Adultos 2">
+    </div>
+    
+
+    <!-- Contratos -->
+    <div class="service-card" data-category="contratos">
+      <img src="{{ url_for('static', filename='images/obras-beneficas.jpg') }}" alt="Contratos 1">
+    </div>
+
+    <div class="service-card" data-category="contratos">
+      <img src="{{ url_for('static', filename='images/eventos-especiales.jpg') }}" alt="Contratos 2">
+    </div>
+
+    <!-- Servicios pre-función -->
+    <div class="service-card" data-category="servicios-pre-funcion">
+      <img src="{{ url_for('static', filename='images/olmo-kiosko.jpg') }}" alt="Servicios Pre-función 1">
+    </div>
+
+    <div class="service-card" data-category="servicios-pre-funcion">
+      <img src="{{ url_for('static', filename='images/dinamicas-infantiles.jpg') }}" alt="Servicios Pre-función 2">
+    </div>
+
+  </div>
+</div>
+</section>
+
+
+<section id="ubicanos" class="seccion-ubicanos">
+    <div class="titulo-ubicanos-centrado">
+      <h2>UBÍCANOS - TEATRO OLMO</h2>
+      <h3>Casataller: un espacio para encontrarte</h3>
+    </div>
+    
+    <div class="contenido-ubicanos">
+      <article class="info-ubicacion">
+        <p>
+          Somos una Asociación Cultural dedicada a las producciones teatrales. Nuestra Casataller es un espacio para el encuentro artístico, ubicado en el corazón de Trujillo.
+        </p>
+        <ul class="datos-contacto">
+          <li>Av. Húsares de Junín "N"-27, Trujillo, Perú</li>
+          <li class="telefono">+51 912 345 678</li>
+          <li class="correo">contacto@teatrolmo.pe</li>
+        </ul>
+      </article>
+
+      <aside class="mapa-ubicacion">
+        <iframe 
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d415.1678225144491!2d-79.03573455200225!3d-8.125470470933502!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91ad3d7193cd52ed%3A0x5ee9e8bcb9ab298a!2sOlmo%20Teatro!5e0!3m2!1ses-419!2spe!4v1747804206845!5m2!1ses-419!2spe" 
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </aside>
+    </div>
+    <br>
+  </section>
+
+
+<!-- Modal de obra -->
+<div id="obraModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" id="cerrarModal">&times;</span>
+    <div class="modal-body" id="modalBody">
+      <div class="modal-img">
+        <img id="modalObraImg" src="" alt="Obra">
+      </div>
+      <div class="modal-info">
+        <h3 id="modalObraTitulo"></h3>
+        <p id="modalObraDescripcion"></p>
+        <h4>FECHAS</h4>
+      <div class="fechas-grid" id="modalObraFechasGrid">
+    <!-- Las fechas se insertarán dinámicamente aquí -->
+      </div>
+        <h4>ELENCO</h4>
+        <div class="modal-elenco" id="modalObraElenco">
+          <!-- Círculos de elenco -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <script type="module" src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script src="https://kit.fontawesome.com/a2e7a6c6c4.js" crossorigin="anonymous"></script>
+</body>
+</html>
