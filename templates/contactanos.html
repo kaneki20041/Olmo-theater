@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preguntas Frecuentes - Teatro</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styless.css') }}">
+</head>
+<body>
+    <a href="{{ url_for('home') }}" class="back-home-btn">Volver al inicio</a>
+    <div class="faq-container">
+        <div class="faq-header">
+            <h1>Preguntas Frecuentes</h1>
+            <p>Encuentra respuestas a las preguntas más comunes sobre nuestros espectáculos, reservas y servicios teatrales.</p>
+        </div>
+
+        <div class="faq-search">
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar en preguntas frecuentes...">
+        </div>
+
+        <div class="faq-categories">
+            <button class="category-btn active" data-category="all">Todas</button>
+            <button class="category-btn" data-category="reservas">Reservas</button>
+            <button class="category-btn" data-category="espectaculos">Espectáculos</button>
+            <button class="category-btn" data-category="precios">Precios</button>
+            <button class="category-btn" data-category="ubicacion">Ubicación</button>
+        </div>
+
+        <!-- FAQ Items -->
+        <div class="faq-list" id="faqList">
+            <div class="faq-item" data-category="reservas">
+                <div class="faq-question">
+                    ¿Cómo puedo reservar entradas para un espectáculo?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Puedes reservar tus entradas de varias formas: a través de nuestro sitio web, llamando directamente al teatro, o visitando nuestra taquilla. Recomendamos reservar con anticipación, especialmente para espectáculos populares, ya que las entradas suelen agotarse rápidamente.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="reservas">
+                <div class="faq-question">
+                    ¿Puedo cancelar o cambiar mi reserva?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Sí, puedes cancelar o modificar tu reserva hasta 24 horas antes del espectáculo. Para cambios realizados con menos de 24 horas de anticipación, se aplicará una tarifa administrativa. Las cancelaciones realizadas el mismo día del evento no son reembolsables.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="precios">
+                <div class="faq-question">
+                    ¿Ofrecen descuentos para estudiantes o grupos?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        ¡Por supuesto! Ofrecemos descuentos del 20% para estudiantes con identificación válida, 15% para grupos de 10 o más personas, y descuentos especiales para adultos mayores. También tenemos promociones especiales durante ciertas fechas del año.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="espectaculos">
+                <div class="faq-question">
+                    ¿Cuánto tiempo duran los espectáculos?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        La duración varía según el espectáculo. Generalmente, nuestras obras duran entre 90 y 120 minutos, incluyendo un intermedio de 15 minutos. La información específica sobre la duración se incluye en cada descripción del espectáculo y en tu boleto.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="espectaculos">
+                <div class="faq-question">
+                    ¿Hay restricciones de edad para los espectáculos?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Algunos espectáculos tienen recomendaciones de edad. Esta información se especifica claramente en la descripción de cada obra. Para espectáculos familiares, recomendamos que los niños menores de 5 años permanezcan acompañados. Los menores de 3 años ingresan sin costo adicional si van en el regazo de un adulto.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="ubicacion">
+                <div class="faq-question">
+                    ¿Dónde está ubicado el teatro y hay estacionamiento disponible?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Nuestro teatro está ubicado en el centro de la ciudad, con fácil acceso al transporte público. Contamos con estacionamiento propio para 50 vehículos, y también hay estacionamiento público disponible en las calles cercanas. Te recomendamos llegar 30 minutos antes del espectáculo.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="reservas">
+                <div class="faq-question">
+                    ¿Qué métodos de pago aceptan?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Aceptamos efectivo, tarjetas de débito y crédito (Visa, MasterCard, American Express), y transferencias bancarias. Para reservas en línea, también puedes usar servicios de pago digital como PayPal. Todos los pagos son procesados de forma segura.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="espectaculos">
+                <div class="faq-question">
+                    ¿Qué debo hacer si llego tarde al espectáculo?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Si llegas tarde, nuestro personal te ayudará a ingresar durante una pausa natural en la presentación para no interrumpir a otros espectadores. Dependiendo del retraso, es posible que debas esperar hasta el intermedio para tomar tu asiento asignado.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="ubicacion">
+                <div class="faq-question">
+                    ¿El teatro es accesible para personas con discapacidad?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Sí, nuestro teatro está completamente adaptado para personas con discapacidad. Contamos con rampas de acceso, asientos especiales para sillas de ruedas, baños adaptados, y sistemas de audio para personas con discapacidad auditiva. Contáctanos al hacer tu reserva para asegurar la mejor experiencia.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="precios">
+                <div class="faq-question">
+                    ¿Puedo comprar un vale regalo?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        ¡Absolutamente! Ofrecemos vales regalo por cualquier monto que pueden ser utilizados para cualquier espectáculo. Son perfectos para regalar y tienen una validez de un año desde la fecha de compra. Puedes adquirirlos en nuestra taquilla o en línea.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-contact">
+            <h2>¿No encontraste lo que buscabas?</h2>
+            <p>Si tienes alguna pregunta específica que no está aquí, no dudes en contactarnos. Nuestro equipo estará encantado de ayudarte.</p>
+            <a href="#contacto" class="contact-btn">Contáctanos</a>
+        </div>
+    </div>
+
+  <script src="{{ url_for('static', filename='js/faq.js') }}"></script>
+</body>
+</html>
