@@ -7,6 +7,10 @@
 @import 'seccion-ubicanos.css';
 @import 'servicios.css';
 @import 'faqs.css';
+@import 'admin_obras.css';
+@import 'editar_obra.css';
+@import 'nueva_obra.css';
+
 
 
 body {

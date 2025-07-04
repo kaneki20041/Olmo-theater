@@ -10,6 +10,9 @@
   crossorigin="anonymous"
 />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% if obras_data %}
+<script id="obras-data" type="application/json">{{ obras_data|safe }}</script>
+{% endif %}
 </head>
 <body>
 
@@ -25,6 +28,7 @@
           <a href="https://www.facebook.com/OlmoTeatro"><i class="fab fa-facebook-f"></i></a>
           <a href="https://www.instagram.com/olmo_teatro/"><i class="fab fa-instagram"></i></a>
           <a href="https://www.youtube.com/@Olmoteatro"><i class="fab fa-youtube"></i></a>
+          <a href="https://www.tiktok.com/@olmoteatro"><i class="fab fa-tiktok"></i></a>
         </div>
         <div class="search-bar">
         </div>
@@ -151,7 +155,7 @@
     </div>    
     
     <div class="service-card" data-category="talleres-ninos">
-      <img src="{{ url_for('static', filename='images/talleres-ninos-3.jpg') }}" alt="Talleres Teatro Musical">
+      <img src="{{ url_for('static', filename='images/TALLERES_INVIERNO_2025_7.png') }}" alt="Talleres Teatro Musical">
     </div>    
     
     <div class="service-card" data-category="talleres-ninos">
@@ -162,11 +166,11 @@
     
     <!-- Talleres para adultos -->
     <div class="service-card" data-category="talleres-adultos">
-      <img src="{{ url_for('static', filename='images/talleres-adultos-1.jpg') }}" alt="Talleres Adultos 1">
+      <img src="{{ url_for('static', filename='images/TALLERES_INVIERNO_6.png') }}" alt="Talleres Adultos 1">
     </div>
 
     <div class="service-card" data-category="talleres-adultos">
-      <img src="{{ url_for('static', filename='images/talleres-adultos-2.jpg') }}" alt="Talleres Adultos 2">
+      <img src="{{ url_for('static', filename='images/talleres.png') }}" alt="Talleres Adultos 2">
     </div>    
     
     <div class="service-card" data-category="talleres-adultos">

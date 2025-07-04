@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Obras</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styless.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🎭 Administración de Obras</h1>
+            <p>Gestiona las obras de teatro por mes</p>
+            <div style="margin-top: 15px;">
+                <a href="{{ url_for('nueva_obra_sin_mes') }}" class="btn" style="background: #ff6b35;">+ Crear Obra en Nuevo Mes</a>
+            </div>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% for mes, datos in obras.items() %}
+            <div class="mes-section">
+                <div class="mes-header">
+                    <div>
+                        <div class="mes-title">{{ mes }}</div>
+                        <div class="fecha-activacion">
+
+                        </div>
+                    </div>
+                    <a href="{{ url_for('nueva_obra', mes=mes) }}" class="btn">+ Nueva Obra</a>
+                </div>
+                
+                {% if datos.obras %}
+                    {% for obra in datos.obras %}
+                        <div class="obra-card">
+                            <div class="obra-info">
+                                <div>
+                                    <img src="{{ obra.imagen }}" alt="{{ obra.titulo }}" class="obra-img" onerror="this.src='/static/images/placeholder.png'">
+                                </div>
+                                <div class="obra-details">
+                                    <h4>{{ obra.titulo }}</h4>
+                                    <p>{{ obra.descripcion[:100] }}{% if obra.descripcion|length > 100 %}...{% endif %}</p>
+                                    <p><strong>Activo desde:</strong> {{ obra.activarDesde }}</p>
+                                    <p><strong>Elenco:</strong> 
+                                        {% for actor in obra.elenco %}
+                                            {{ actor.nombre }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                </div>
+                                <div class="obra-actions">
+                                    <a href="{{ url_for('editar_obra', mes=mes, obra_index=loop.index0) }}" class="btn btn-warning">Editar</a>
+                                    <a href="{{ url_for('eliminar_obra', mes=mes, obra_index=loop.index0) }}" 
+                                    class="btn btn-danger" 
+                                    onclick="return confirm('¿Estás seguro de que quieres eliminar esta obra?')">
+                                    Eliminar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                {% else %}
+                    <p style="text-align: center; color: #666; font-style: italic;">No hay obras para este mes</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="{{ url_for('home') }}" class="btn">← Volver al sitio principal</a>
+        </div>
+    </div>
+</body>
+</html>

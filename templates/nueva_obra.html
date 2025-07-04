@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if obra %}Editar{% else %}Nueva{% endif %} Obra</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styless.css') }}">
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h1>🎭 {% if obra %}Editar Obra{% else %}Nueva Obra{% endif %}</h1>
+            <p>Mes: <strong>{{ mes }}</strong></p>
+        </div>
+        
+        <div class="form-section">
+            <form action="{{ url_for('guardar_obra') }}" method="POST" enctype="multipart/form-data">
+                {% if not mes %}
+                <div class="form-group">
+                    <label for="mes">Seleccionar Mes</label>
+                    <select id="mes" name="mes" required>
+                        <option value="">Selecciona un mes...</option>
+                        {% for mes_option in meses_disponibles %}
+                            <option value="{{ mes_option }}">{{ mes_option }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% else %}
+                <input type="hidden" id="mes" name="mes" value="{{ mes }}">
+                {% endif %}
+                
+                {% if obra %}
+                    <input type="hidden" name="obra_index" value="{{ obra_index }}">
+                {% endif %}
+                
+                <div class="form-group">
+                    <label for="titulo">Título de la Obra</label>
+                    <input type="text" id="titulo" name="titulo" value="{{ obra.titulo if obra else '' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" name="descripcion" required>{{ obra.descripcion if obra else '' }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="imagen_archivo">Subir Imagen desde Dispositivo</label>
+                    <input type="file" id="imagen_archivo" name="imagen_archivo" 
+                           accept="image/png,image/jpeg,image/jpg,image/gif,image/webp">
+                    <div class="form-help">Formatos permitidos: PNG, JPG, JPEG, GIF, WEBP (máximo 16MB)</div>
+                </div>
+                
+                <div style="text-align: center; margin: 15px 0; color: #666; font-style: italic;">
+                    - O -
+                </div>
+                
+                <div class="form-group">
+                    <label for="imagen_url">URL de Imagen Externa</label>
+                    <input type="url" id="imagen_url" name="imagen_url" value="{{ obra.imagen if obra else '' }}">
+                    <div class="form-help">Ejemplo: /static/images/obra1.png o https://ejemplo.com/imagen.jpg</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="activar_desde">Activar desde (fecha)</label>
+                    <input type="date" id="activar_desde" name="activar_desde" 
+                           value="{% if obra %}{{ activar_desde }}{% else %}{{ '2025-01-01' }}{% endif %}" required>
+                    <div class="form-help">La obra se mostrará a partir de esta fecha</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fechas">Fechas de Presentación</label>
+                    <input type="text" id="fechas" name="fechas" 
+                           value="{% if obra %}{% for fecha in obra.fechas %}{{ fecha.dia }} {{ fecha.mes }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}" 
+                           required>
+                    <div class="form-help">Formato: "17 mayo, 24 mayo, 31 mayo" o "5, 12, 19 de agosto"</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Elenco</label>
+                    <div id="elenco-container">
+                        {% if obra and obra.elenco %}
+                            {% for i, actor in enumerate(obra.elenco) %}
+                            <div class="elenco-item">
+                                <input type="text" name="elenco[]" value="{{ actor.nombre }}" placeholder="Nombre del actor" required>
+                                <input type="file" name="foto_elenco_{{ loop.index0 }}" accept="image/*">
+                                <input type="hidden" name="foto_url_{{ loop.index0 }}" value="{{ actor.foto }}">
+                                {% if actor.foto %}
+                                    <div class="elenco-preview">
+                                        <img src="{{ actor.foto }}" alt="{{ actor.nombre }}">
+                                    </div>
+                                {% endif %}
+                                {% if not loop.first %}
+                                    <button type="button" class="btn btn-danger btn-sm eliminar-actor" onclick="eliminarActor(this)" title="Eliminar actor">🗑️</button>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="elenco-item">
+                                <input type="text" name="elenco[]" placeholder="Nombre del actor" required>
+                                <input type="file" name="foto_elenco_0" accept="image/*">
+                            </div>
+                        {% endif %}
+                    </div>
+                    <button type="button" class="btn btn-small" onclick="agregarActor()">+ Agregar otro actor</button>
+                    <div class="form-help">Puedes subir una imagen o dejarla vacía si no tienes una. Máximo 16MB por archivo.</div>
+                </div>
+
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn">
+                        {% if obra %}Actualizar Obra{% else %}Crear Obra{% endif %}
+                    </button>
+                    <a href="{{ url_for('admin_obras') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+      <script type="module" src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
