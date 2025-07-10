@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash,session
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 import json
@@ -9,13 +9,20 @@ import secrets
 import re # Asegúrate de que 're' esté importado para 'valid_url'
 import logging # Importar el módulo logging
 from collections import OrderedDict
+from functools import wraps
 
 # Carga las variables de entorno desde .flaskenv o .env
 load_dotenv()
-
 app = Flask(__name__)
-# Generar una clave secreta segura (guárdala en tu .env para producción)
-app.secret_key = 'sk_teatro_2025_9f8e7d6c5b4a3e2f1d0c9b8a7f6e5d4c3b2a1f0e'
+app.secret_key = os.environ.get("SECRET_KEY")
+USERNAME = os.environ.get("ADMIN_USERNAME")
+PASSWORD = os.environ.get("ADMIN_PASSWORD")
+print("SECRET_KEY:", os.environ.get("SECRET_KEY"))
+print("USERNAME:", os.environ.get("ADMIN_USERNAME"))
+print("PASSWORD:", os.environ.get("ADMIN_PASSWORD"))
+
+
+
 
 # Configuración para subida de archivos
 UPLOAD_FOLDER = 'static/images/obras'
@@ -44,6 +51,16 @@ SERVICIOS_FILE = 'servicios.json'
 
 # Las variables CATEGORIAS_SERVICIOS y NOMBRES_CATEGORIAS ya no son globales y estáticas
 # Ahora se generarán dinámicamente dentro de cargar_servicios()
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            flash('Debes iniciar sesión para acceder a esta sección.', 'error')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 def allowed_file(filename):
     """Verifica si el archivo tiene una extensión permitida"""
@@ -263,6 +280,7 @@ def api_servicios():
 
 # ============= RUTAS DE ADMINISTRACIÓN DE OBRAS =============
 @app.route('/admin-teatro-olmo-2025/obras')
+@login_required
 def admin_obras():
     """Panel de administración de obras"""
     obras = cargar_obras()
@@ -273,6 +291,7 @@ def admin_obras():
     return render_template('admin_obras.html', obras=obras, meses_disponibles=meses_disponibles)
 
 @app.route('/admin-teatro-olmo-2025/obra/nueva')
+@login_required
 def nueva_obra_sin_mes():
     """Formulario para crear nueva obra sin mes específico"""
     meses_disponibles = [
@@ -282,6 +301,7 @@ def nueva_obra_sin_mes():
     return render_template('nueva_obra.html', meses_disponibles=meses_disponibles)
 
 @app.route('/admin-teatro-olmo-2025/obra/nueva/<mes>')
+@login_required
 def nueva_obra(mes):
     """Formulario para crear nueva obra en mes específico"""
     meses_disponibles = [
@@ -291,6 +311,7 @@ def nueva_obra(mes):
     return render_template('nueva_obra.html', mes=mes, meses_disponibles=meses_disponibles)
 
 @app.route('/admin-teatro-olmo-2025/obra/editar/<mes>/<int:obra_index>')
+@login_required
 def editar_obra(mes, obra_index):
     """Formulario para editar obra existente"""
     obras = cargar_obras()
@@ -302,6 +323,7 @@ def editar_obra(mes, obra_index):
         return redirect(url_for('admin_obras'))
 
 @app.route('/admin-teatro-olmo-2025/obra/guardar', methods=['POST'])
+@login_required
 def guardar_obra():
     """Guarda una nueva obra o actualiza una existente"""
     obras = cargar_obras()
@@ -405,6 +427,7 @@ def guardar_obra():
     return redirect(url_for('admin_obras'))
 
 @app.route('/admin-teatro-olmo-2025/obra/eliminar/<mes>/<int:obra_index>')
+@login_required
 def eliminar_obra(mes, obra_index):
     """Elimina una obra"""
     obras = cargar_obras()
@@ -441,6 +464,7 @@ def eliminar_obra(mes, obra_index):
 
 # ============= RUTAS DE ADMINISTRACIÓN DE SERVICIOS (MODIFICADAS) =============
 @app.route('/admin-teatro-olmo-2025/servicios')
+@login_required
 def admin_servicios():
     """
     Panel de administración de servicios con filtros por estado y categoría.
@@ -490,6 +514,7 @@ def admin_servicios():
                            filtro_categoria_seleccionada=filtro_categoria) # Para mantener el estado del filtro en el HTML
 
 @app.route('/admin-teatro-olmo-2025/servicio/nuevo')
+@login_required
 def nuevo_servicio():
     """Formulario para crear nuevo servicio"""
     _, categorias_dinamicas, nombres_categorias_dinamicos = cargar_servicios() # Carga categorías dinámicas
@@ -498,6 +523,7 @@ def nuevo_servicio():
                            nombres_categorias=nombres_categorias_dinamicos)
 
 @app.route('/admin-teatro-olmo-2025/servicio/editar/<categoria>/<servicio_id>', methods=['GET', 'POST'])
+@login_required
 def editar_servicio(categoria, servicio_id):
     """Formulario para editar servicio existente"""
     
@@ -534,6 +560,7 @@ def editar_servicio(categoria, servicio_id):
 
 
 @app.route('/admin-teatro-olmo-2025/servicio/guardar', methods=['POST'])
+@login_required
 def guardar_servicio():
     """Guarda un nuevo servicio o actualiza uno existente"""
     servicios_data, _, _ = cargar_servicios() # Carga solo los datos de servicios
@@ -656,6 +683,7 @@ def valid_url(url):
     return bool(re.match(regex, url))
 
 @app.route('/admin-teatro-olmo-2025/servicio/eliminar/<categoria>/<servicio_id>')
+@login_required
 def eliminar_servicio(categoria, servicio_id):
     """Elimina un servicio"""
     servicios_data, _, _ = cargar_servicios() # Carga solo los datos de servicios
@@ -691,6 +719,7 @@ def eliminar_servicio(categoria, servicio_id):
 
 
 @app.route('/admin-teatro-olmo-2025/servicio/toggle/<categoria>/<servicio_id>')
+@login_required
 def toggle_servicio(categoria, servicio_id):
     """Activa/desactiva un servicio"""
     servicios_data, _, _ = cargar_servicios() # Carga solo los datos de servicios
@@ -741,6 +770,30 @@ def ordenar_servicios(servicios):
 
     return servicios_ordenados
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if session.get('logged_in'):
+        return redirect(url_for('admin_servicios'))  # Evita repetir login
+
+    if request.method == 'POST':
+        usuario = request.form['username']
+        clave = request.form['password']
+        if usuario == USERNAME and clave == PASSWORD:
+            session['logged_in'] = True
+            flash('Has iniciado sesión correctamente', 'success')
+            return redirect(url_for('admin_servicios'))
+        else:
+            flash('Credenciales incorrectas', 'error')
+
+    return render_template('login.html')
+
+
+# Logout
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    flash('Sesión cerrada', 'success')
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     # Asegúrate de crear las carpetas de subida si no existen

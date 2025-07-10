@@ -7,14 +7,23 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styless.css') }}">
 </head>
 <body>
-    <div class="admin-container">
-        <div class="admin-header">
+<div class="admin-container">
+    <div class="admin-header">
+        <a href="{{ url_for('logout') }}" class="btn btn-logout">Cerrar sesión</a>
+
+        <div class="header-content">
             <h1>🎭 Administración de Obras</h1>
             <p>Gestiona las obras de teatro por mes</p>
+            <a href="{{ url_for('admin_servicios') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Crear Servicio
+            </a>
             <div style="margin-top: 15px;">
                 <a href="{{ url_for('nueva_obra_sin_mes') }}" class="btn" style="background: #ff6b35;">+ Crear Obra en Nuevo Mes</a>
             </div>
         </div>
+    </div>
+</div>
+
         
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
