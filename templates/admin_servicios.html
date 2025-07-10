@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Servicios - Teatro Olmo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .nav-buttons {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .category-section {
+            margin-bottom: 40px;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .category-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .service-card {
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .service-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .service-info {
+            padding: 20px;
+        }
+        
+        .service-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .service-description {
+            color: #6c757d;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .service-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .service-status.active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .service-status.inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .service-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .empty-category {
+            padding: 40px;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .service-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-cogs"></i> Administración de Servicios</h1>
+            <p>Gestiona los servicios del Teatro Olmo</p>
+        </div>
+        
+        <div class="nav-buttons">
+            <div>
+                <a href="{{ url_for('nuevo_servicio') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nuevo Servicio
+                </a>
+                <a href="{{ url_for('admin_obras') }}" class="btn btn-secondary">
+                    <i class="fas fa-theater-masks"></i> Administrar Obras
+                </a>
+            </div>
+            <div>
+                <a href="{{ url_for('home') }}" class="btn btn-success">
+                    <i class="fas fa-home"></i> Ver Sitio Web
+                </a>
+            </div>
+        </div>
+        
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% for categoria, lista_servicios in servicios.items() %}
+                <div class="category-section">
+                    <div class="category-header">
+                        <h2 class="category-title">{{ nombres_categorias[categoria] }}</h2>
+                        <span class="badge">
+                            {% if categoria in servicios %}
+                                {{ servicios[categoria]|length }} servicios
+                            {% else %}
+                                0 servicios
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    {% if lista_servicios %}
+                        <div class="services-grid">
+                            {% for servicio in lista_servicios %}
+                                <div class="service-card">
+                                    <img src="{{ servicio.imagen }}" alt="{{ servicio.alt }}" class="service-image">
+                                    <div class="service-info">
+                                        <h3 class="service-title">{{ servicio.titulo }}</h3>
+                                        <p class="service-description">{{ servicio.descripcion }}</p>
+                                        <div class="service-status {{ 'active' if servicio.get('activo', True) else 'inactive' }}">
+                                            {% if servicio.get('activo', True) %}
+                                                <i class="fas fa-check-circle"></i> Activo
+                                            {% else %}
+                                                <i class="fas fa-times-circle"></i> Inactivo
+                                            {% endif %}
+                                        </div>
+                                        <div class="service-actions">
+                                            <a href="{{ url_for('editar_servicio', categoria=categoria, servicio_id=servicio.id) }}" class="btn btn-warning btn-sm">
+                                                <i class="fas fa-edit"></i> Editar
+                                            </a>
+                                            <a href="{{ url_for('toggle_servicio', categoria=categoria, servicio_id=servicio.id) }}" class="btn btn-secondary btn-sm">
+                                                {% if servicio.get('activo', True) %}
+                                                    <i class="fas fa-eye-slash"></i> Desactivar
+                                                {% else %}
+                                                    <i class="fas fa-eye"></i> Activar
+                                                {% endif %}
+                                            </a>
+                                            <a href="{{ url_for('eliminar_servicio', categoria=categoria, servicio_id=servicio.id) }}" 
+                                               class="btn btn-danger btn-sm" 
+                                               onclick="return confirm('¿Estás seguro de que quieres eliminar este servicio?')">
+                                                <i class="fas fa-trash"></i> Eliminar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-category">
+                            <i class="fas fa-inbox fa-3x" style="margin-bottom: 20px; opacity: 0.5;"></i>
+                            <p>No hay servicios en esta categoría</p>
+                            <a href="{{ url_for('nuevo_servicio') }}" class="btn btn-primary" style="margin-top: 15px;">
+                                <i class="fas fa-plus"></i> Agregar Primer Servicio
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

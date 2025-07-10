@@ -4,8 +4,12 @@
   overflow: hidden;
   display: flex;
   justify-content: center;
+  margin-top: 10px;
 }
 
+body {
+  padding-top: 130px; /* Ajustar si el navbar es más alto o más bajo */
+}
 .carousel-container {
   width: 90%;
   max-width: 1350px;

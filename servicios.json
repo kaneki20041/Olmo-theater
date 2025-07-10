@@ -1,0 +1,82 @@
+{
+  "talleres-adultos": [
+    {
+      "id": "a870e326-3282-49af-8f43-9bc32dc8ae58",
+      "imagen": "/static/images/TALLERES_INVIERNO_6.png",
+      "alt": "Talleres Adultos 1",
+      "titulo": "Talleres de Invierno Adultos",
+      "descripcion": "Talleres especializados para adultos",
+      "activo": true
+    },
+    {
+      "id": "1239e4f4-738d-48bd-82fc-2f77e0da2a2b",
+      "titulo": "Talleres Especializados",
+      "descripcion": "Talleres especializados para adultos",
+      "imagen": "/static/images/servicios/servicio_13bcce36.jpg",
+      "alt": "Talleres Adultos 2",
+      "activo": true
+    },
+    {
+      "id": "c05adb70-4252-49a5-ac82-1962120b62e9",
+      "imagen": "/static/images/talleres-adultos-4.jpg",
+      "alt": "Talleres Adultos 2",
+      "titulo": "Talleres Avanzados",
+      "descripcion": "Talleres avanzados para adultos",
+      "activo": true
+    },
+    {
+      "id": "7a3c625f-9aab-4ce5-85db-c3409815b83e",
+      "titulo": "LA PRINCESA Y EL DRAGÓN",
+      "descripcion": "www",
+      "imagen": "https://m.media-amazon.com/images/S/pv-target-images/081bc3ac8ff25eac502f0742aff3f9808a97be26052a33617403fddcfb3195e7.jpg",
+      "alt": "LA PRINCESA Y EL DRAGÓN",
+      "activo": true
+    }
+  ],
+  "contratos": [
+    {
+      "id": "adcca663-8627-4616-aedc-51c1a59d7756",
+      "imagen": "/static/images/obras-beneficas.jpg",
+      "alt": "Contratos 1",
+      "titulo": "Obras Benéficas",
+      "descripcion": "Presentaciones para eventos benéficos",
+      "activo": true
+    },
+    {
+      "id": "e09fac09-b828-4d0e-9678-f244340be31d",
+      "titulo": "Eventos Especiales",
+      "descripcion": "Contratación para eventos especiales",
+      "imagen": "/static/images/servicios/servicio_23461f65.jpg",
+      "alt": "Contratos 2",
+      "activo": true
+    }
+  ],
+  "servicios-pre-funcion": [
+    {
+      "id": "b06ade5e-9d93-4949-be02-4a7a0aba2e3f",
+      "imagen": "/static/images/olmo-kiosko.jpg",
+      "alt": "Servicios Pre-función 1",
+      "titulo": "Olmo Kiosko",
+      "descripcion": "Servicios de kiosko antes de la función",
+      "activo": true
+    },
+    {
+      "id": "eae5721f-d0da-4e85-8cb2-92aba9306b40",
+      "imagen": "/static/images/dinamicas-infantiles.jpg",
+      "alt": "Servicios Pre-función 2",
+      "titulo": "Dinámicas Infantiles",
+      "descripcion": "Actividades para niños antes de la función",
+      "activo": true
+    }
+  ],
+  "talleres-ninos": [
+    {
+      "id": "2fe436dd-2a52-4ad6-bd59-2f6fbb803d2c",
+      "titulo": "aaaaaaaaaaaa",
+      "descripcion": "aa",
+      "imagen": "/static/images/servicios/servicio_28c84148.jpeg",
+      "alt": "aaa",
+      "activo": true
+    }
+  ]
+}

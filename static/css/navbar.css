@@ -4,8 +4,6 @@ header {
   width: 100%;
   z-index: 1000;
 }
-
-/* Agrega espacio arriba para que el contenido no quede tapado */
 body {
   padding-top: 130px; /* Ajustar si el navbar es más alto o más bajo */
 }

@@ -13,13 +13,15 @@
   {% if obras_data %}
 <script id="obras-data" type="application/json">{{ obras_data|safe }}</script>
 {% endif %}
+
+
 </head>
 <body>
 
   <header>
     <div class="navbar-top">
       <div class="logo">
-        <img src="https://media.licdn.com/dms/image/v2/C560BAQEHXlD-uNfmLw/company-logo_200_200/company-logo_200_200/0/1631335379518?e=2147483647&v=beta&t=nTeCvK7WLKT2jrBWHawfwy5ahZnkFGKKW2xl2ljEhTE" alt="Logo" />
+<img src="{{ url_for('static', filename='images/logo_olmo.png') }}" alt="Logo" />
         <span>OLMO TEATRO</span>
       </div>
       <div class="top-right">
@@ -109,7 +111,7 @@
 <br><br>
 <section id="espectaculos">
   <br>
-  <h2>Olmobras</h2>
+  <h2>FUNCIONES TEATRALES</h2>
   <br>
   <div class="mes-selector">
     <button id="btnAnterior">&#10094;</button>
@@ -120,86 +122,34 @@
   </div>
 </section>
 
+
 <section id="servicios">
-<div class="servicios-container">
-  <h2 class="servicios-title">SERVICIOS</h2>
-  
-  <div class="filters-container">
-    <div class="filter-option active" data-filter="talleres-ninos">
-      <div class="filter-radio"></div>
-      <span class="filter-label">Talleres niños</span>
+    <div class="servicios-container">
+        <h2 class="servicios-title">SERVICIOS</h2>
+        
+        <div class="filters-container">
+            <!-- Bucle para generar filtros dinámicamente desde Flask -->
+            {% for categoria_key in categorias %}
+    <div class="filter-option {% if categoria_key == 'talleres-ninos' %}active{% endif %}" data-filter="{{ categoria_key }}">
+        <div class="filter-radio"></div>
+        <span class="filter-label">{{ nombres_categorias[categoria_key] }}</span>
     </div>
-    <div class="filter-option" data-filter="talleres-adultos">
-      <div class="filter-radio"></div>
-      <span class="filter-label">Talleres adultos</span>
+{% endfor %}
+        </div>
+
+        <!-- Contenedor para los servicios, donde se renderizarán dinámicamente con JavaScript -->
+        <div class="services-grid" id="servicesGrid">
+            <!-- Mensaje de carga inicial, que será reemplazado por los servicios -->
+            <div class="no-services-message" id="initial-loading-message">
+                <i class="fas fa-spinner fa-spin fa-3x" style="margin-bottom: 20px; color: #667eea;"></i>
+                <p>Cargando servicios...</p>
+            </div>
+        </div>
     </div>
-    <div class="filter-option" data-filter="contratos">
-      <div class="filter-radio"></div>
-      <span class="filter-label">Contratos</span>
-    </div>
-    <div class="filter-option" data-filter="servicios-pre-funcion">
-      <div class="filter-radio"></div>
-      <span class="filter-label">Servicios pre-función</span>
-    </div>
-  </div>
+</section>
 
   <div class="services-grid loading" id="servicesGrid">
-    
-    <!-- Talleres para niños -->
-    <div class="service-card" data-category="talleres-ninos">
-      <img src="{{ url_for('static', filename='images/talleres-ninos-1.jpg') }}" alt="Talleres de Verano Niños">
-    </div>
-
-    <div class="service-card" data-category="talleres-ninos">
-      <img src="{{ url_for('static', filename='images/talleres-ninos-2.jpg') }}" alt="Talleres Teatro Musical">
-    </div>    
-    
-    <div class="service-card" data-category="talleres-ninos">
-      <img src="{{ url_for('static', filename='images/TALLERES_INVIERNO_2025_7.png') }}" alt="Talleres Teatro Musical">
-    </div>    
-    
-    <div class="service-card" data-category="talleres-ninos">
-      <img src="{{ url_for('static', filename='images/talleres-ninos-4.jpg') }}" alt="Talleres Teatro Musical">
-    </div>
-
-    
-    
-    <!-- Talleres para adultos -->
-    <div class="service-card" data-category="talleres-adultos">
-      <img src="{{ url_for('static', filename='images/TALLERES_INVIERNO_6.png') }}" alt="Talleres Adultos 1">
-    </div>
-
-    <div class="service-card" data-category="talleres-adultos">
-      <img src="{{ url_for('static', filename='images/talleres.png') }}" alt="Talleres Adultos 2">
-    </div>    
-    
-    <div class="service-card" data-category="talleres-adultos">
-      <img src="{{ url_for('static', filename='images/talleres-adultos-3.jpg') }}" alt="Talleres Adultos 2">
-    </div>    
-    
-    <div class="service-card" data-category="talleres-adultos">
-      <img src="{{ url_for('static', filename='images/talleres-adultos-4.jpg') }}" alt="Talleres Adultos 2">
-    </div>
-    
-
-    <!-- Contratos -->
-    <div class="service-card" data-category="contratos">
-      <img src="{{ url_for('static', filename='images/obras-beneficas.jpg') }}" alt="Contratos 1">
-    </div>
-
-    <div class="service-card" data-category="contratos">
-      <img src="{{ url_for('static', filename='images/eventos-especiales.jpg') }}" alt="Contratos 2">
-    </div>
-
-    <!-- Servicios pre-función -->
-    <div class="service-card" data-category="servicios-pre-funcion">
-      <img src="{{ url_for('static', filename='images/olmo-kiosko.jpg') }}" alt="Servicios Pre-función 1">
-    </div>
-
-    <div class="service-card" data-category="servicios-pre-funcion">
-      <img src="{{ url_for('static', filename='images/dinamicas-infantiles.jpg') }}" alt="Servicios Pre-función 2">
-    </div>
-
+    <!-- Los servicios se cargarán dinámicamente aquí -->
   </div>
 </div>
 </section>
@@ -260,6 +210,12 @@
   </div>
 </div>
 
+<script>
+    // Exponer datos de Flask como variables globales (ya es una lista de pares ordenada)
+    window.serviciosData = {{ servicios_data|safe }};
+    window.obrasData = {{ obras_data|safe }};
+    window.nombresCategorias = {{ nombres_categorias|tojson }};
+</script>
 
   <script type="module" src="{{ url_for('static', filename='js/script.js') }}"></script>
   <script src="https://kit.fontawesome.com/a2e7a6c6c4.js" crossorigin="anonymous"></script>

@@ -95,14 +95,16 @@
 }
 
 .services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 30px;
-    opacity: 1;
-    transition: opacity 0.5s ease;
 }
 
+
 .service-card {
+    width: 300px;
+    max-width: 100%;
     opacity: 0;
     position: relative;
     transition: all 0.5s ease;
@@ -112,6 +114,7 @@
     overflow: hidden;
     cursor: pointer;
 }
+
 
 .service-card:hover {
     transform: translateY(-10px) scale(1.02);

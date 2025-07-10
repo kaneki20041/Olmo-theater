@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Servicio - Teatro Olmo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Tus estilos CSS existentes */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px; /* Ajustado a 800px para una mejor visualización del formulario */
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            box-sizing: border-box; /* Asegura que padding no aumente el ancho total */
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .nav-buttons {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: space-between; /* Para alinear los botones a los extremos */
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-group .help-text {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .image-upload-section {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer; /* Indica que es clickeable/arrastrable */
+        }
+        
+        .image-upload-section.dragover {
+            border-color: #667eea;
+            background-color: #f8f9ff;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .nav-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-plus-circle"></i> Nuevo Servicio</h1>
+        </div>
+        
+        <div class="nav-buttons">
+            <a href="{{ url_for('admin_servicios') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver a Servicios
+            </a>
+            <a href="{{ url_for('home') }}" class="btn btn-success">
+                <i class="fas fa-home"></i> Ver Sitio Web
+            </a>
+        </div>
+        
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('guardar_servicio') }}" enctype="multipart/form-data">
+                <input type="hidden" name="servicio_id" value="">
+                
+                <div class="form-group">
+                    <label for="categoria">Categoría *</label>
+                    <select id="categoria" name="categoria_select"> {# CAMBIO: name="categoria_select" para diferenciar #}
+                        <option value="">Seleccionar categoría...</option>
+                        {% for cat_key in categorias %}
+                            <option value="{{ cat_key }}">{{ nombres_categorias[cat_key] }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" id="nueva_categoria_input" name="categoria_text" placeholder="O escribe una nueva categoría aquí (ej: mi-nueva-categoria)" class="mt-2" style="display: none;"> {# CAMBIO: name="categoria_text" y display:none por defecto #}
+                    <div class="help-text">Si la categoría no existe, se creará automáticamente. Usa minúsculas y guiones para nuevas categorías (ej: "talleres-verano").</div>
+                </div>
+                
+                <script>
+                    // JavaScript para manejar la selección de categoría o la entrada de una nueva
+                    const selectElement = document.getElementById('categoria');
+                    const newCategoryInput = document.getElementById('nueva_categoria_input');
+
+                    // Función para actualizar el estado de los campos de categoría
+                    function updateCategoryFields() {
+                        if (selectElement.value === '') {
+                            newCategoryInput.style.display = 'block'; // Muestra el input de texto
+                            newCategoryInput.setAttribute('name', 'categoria'); // Asigna el nombre 'categoria' al input de texto
+                            selectElement.removeAttribute('name'); // Remueve el nombre del select para que no se envíe
+                            newCategoryInput.focus(); // Pone el foco en el nuevo input
+                        } else {
+                            newCategoryInput.style.display = 'none'; // Oculta el input de texto
+                            selectElement.setAttribute('name', 'categoria'); // Asigna el nombre 'categoria' al select
+                            newCategoryInput.removeAttribute('name'); // Remueve el nombre del input de texto
+                        }
+                    }
+
+                    // Escucha cambios en el selector
+                    selectElement.addEventListener('change', updateCategoryFields);
+
+                    // Asegúrate de que el input de nueva categoría esté oculto/visible correctamente al cargar la página
+                    // Si el select ya tiene un valor seleccionado (por ejemplo, al editar), el input se oculta.
+                    // Si no tiene valor, el input se muestra.
+                    window.addEventListener('load', updateCategoryFields);
+
+                    // Si el usuario escribe en el input de texto, deseleccionar el select
+                    newCategoryInput.addEventListener('input', function() {
+                        if (this.value.trim() !== '') {
+                            selectElement.value = ''; // Deselecciona la opción en el select
+                            updateCategoryFields(); // Reajusta los nombres para que el input de texto se envíe
+                        }
+                    });
+                </script>
+
+                <div class="form-group">
+                    <label for="titulo">Título *</label>
+                    <input type="text" id="titulo" name="titulo" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="descripcion">Descripción *</label>
+                    <textarea id="descripcion" name="descripcion" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="alt">Texto alternativo (Alt)</label>
+                    <input type="text" id="alt" name="alt">
+                    <div class="help-text">Si no se especifica, se usará el título</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Imagen *</label>
+                    <div class="image-upload-section">
+                        <i class="fas fa-cloud-upload-alt fa-2x" style="margin-bottom: 10px; color: #6c757d;"></i>
+                        <p>Arrastra una imagen aquí o haz clic para seleccionar</p>
+                        <input type="file" id="imagen_archivo" name="imagen_archivo" accept="image/*" style="display: none;">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('imagen_archivo').click()">
+                            <i class="fas fa-upload"></i> Seleccionar Archivo
+                        </button>
+                    </div>
+                    <div class="help-text">O proporciona una URL de imagen:</div>
+                    <input type="url" id="imagen_url" name="imagen_url" placeholder="https://ejemplo.com/imagen.jpg">
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="activo" name="activo" checked>
+                        <label for="activo">Servicio activo</label>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="{{ url_for('admin_servicios') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Crear Servicio
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Drag and drop functionality
+        const uploadSection = document.querySelector('.image-upload-section');
+        const fileInput = document.getElementById('imagen_archivo');
+        
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+        
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+        
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                updateFileDisplay();
+            }
+        });
+        
+        fileInput.addEventListener('change', updateFileDisplay);
+        
+        function updateFileDisplay() {
+            const file = fileInput.files[0];
+            if (file) {
+                uploadSection.innerHTML = `
+                    <i class="fas fa-check-circle fa-2x" style="margin-bottom: 10px; color: #28a745;"></i>
+                    <p>Archivo seleccionado: ${file.name}</p>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('imagen_archivo').click()">
+                        <i class="fas fa-upload"></i> Cambiar Archivo
+                    </button>
+                `;
+            } else {
+                // Restaura el contenido original si no hay archivo seleccionado
+                uploadSection.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt fa-2x" style="margin-bottom: 10px; color: #6c757d;"></i>
+                    <p>Arrastra una imagen aquí o haz clic para seleccionar</p>
+                    <input type="file" id="imagen_archivo" name="imagen_archivo" accept="image/*" style="display: none;">
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('imagen_archivo').click()">
+                        <i class="fas fa-upload"></i> Seleccionar Archivo
+                    </button>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

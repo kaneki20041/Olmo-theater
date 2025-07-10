@@ -29,8 +29,8 @@
     "obras": [
       {
         "activarDesde": "2025-01-01",
-        "imagen": "/static/images/obras/Image20240716102751_558c679e.jpg",
-        "titulo": "pipipipaaaa",
+        "imagen": "/static/images/obras/Theodore-alvin-y-las-ardillas-4_aafb3648.jpg",
+        "titulo": "obre estelar",
         "descripcion": "pipipipi",
         "fechas": [
           {
@@ -42,28 +42,6 @@
           {
             "nombre": "uwu",
             "foto": ""
-          }
-        ]
-      }
-    ]
-  },
-  "Julio": {
-    "obras": [
-      {
-        "activarDesde": "2025-01-01",
-        "imagen": "https://m.media-amazon.com/images/S/pv-target-images/081bc3ac8ff25eac502f0742aff3f9808a97be26052a33617403fddcfb3195e7.jpg",
-        "titulo": "aaaa",
-        "descripcion": "aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa",
-        "fechas": [
-          {
-            "dia": "1",
-            "mes": "enero"
-          }
-        ],
-        "elenco": [
-          {
-            "nombre": "yuju",
-            "foto": "/static/images/elenco/elenco_827724f2.png"
           }
         ]
       }
