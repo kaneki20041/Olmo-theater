@@ -1,0 +1,80 @@
+{
+  "categorias": [
+    {
+      "id": 1,
+      "nombre": "Todas",
+      "slug": "all",
+      "creado_en": "2025-08-06T01:20:00.539400"
+    },
+    {
+      "id": 2,
+      "nombre": "Reservas",
+      "slug": "reservas",
+      "creado_en": "2025-08-06T01:20:00.539400"
+    },
+    {
+      "id": 3,
+      "nombre": "Espectáculos",
+      "slug": "espectaculos",
+      "creado_en": "2025-08-06T01:20:00.539400"
+    },
+    {
+      "id": 4,
+      "nombre": "Precios",
+      "slug": "precios",
+      "creado_en": "2025-08-06T01:20:00.539400"
+    },
+    {
+      "id": 5,
+      "nombre": "Ubicación",
+      "slug": "ubicacion",
+      "creado_en": "2025-08-06T01:20:00.539400"
+    },
+    {
+      "id": 6,
+      "nombre": "hola",
+      "slug": "hola",
+      "creado_en": "2025-08-06T01:30:53.183376"
+    }
+  ],
+  "preguntas": [
+    {
+      "id": 1,
+      "pregunta": "¿Cómo puedo reservar entradas para un espectáculo?",
+      "respuesta": "Puedes reservar tus entradas de varias formas: a través de nuestro sitio web, llamando directamente al teatro, o visitando nuestra taquilla. Recomendamos reservar con anticipación, especialmente para espectáculos populares, ya que las entradas suelen agotarse rápidamente.",
+      "categoria_id": 2,
+      "activa": true,
+      "orden": 0,
+      "creado_en": "2025-08-06T01:20:00.539400"
+    },
+    {
+      "id": 2,
+      "pregunta": "¿Puedo cancelar o cambiar mi reserva?",
+      "respuesta": "Sí, puedes cancelar o modificar tu reserva hasta 24 horas antes del espectáculo. Para cambios realizados con menos de 24 horas de anticipación, se aplicará una tarifa administrativa. Las cancelaciones realizadas el mismo día del evento no son reembolsables.",
+      "categoria_id": 2,
+      "activa": true,
+      "orden": 1,
+      "creado_en": "2025-08-06T01:20:00.539400"
+    },
+    {
+      "id": 3,
+      "pregunta": "¿Ofrecen descuentos para estudiantes o grupos?",
+      "respuesta": "¡Por supuesto! Ofrecemos descuentos del 20% para estudiantes con identificación válida, 15% para grupos de 10 o más personas, y descuentos especiales para adultos mayores. También tenemos promociones especiales durante ciertas fechas del año.",
+      "categoria_id": 4,
+      "activa": true,
+      "orden": 0,
+      "creado_en": "2025-08-06T01:20:00.539400"
+    },
+    {
+      "id": 4,
+      "pregunta": "¿Cuánto tiempo duran los espectáculos?",
+      "respuesta": "La duración varía según el espectáculo. Generalmente, nuestras obras duran entre 90 y 120 minutos, incluyendo un intermedio de 15 minutos. La información específica sobre la duración se incluye en cada descripción del espectáculo y en tu boleto.",
+      "categoria_id": 3,
+      "activa": false,
+      "orden": 0,
+      "creado_en": "2025-08-06T01:20:00.539400"
+    }
+  ],
+  "next_categoria_id": 7,
+  "next_pregunta_id": 6
+}

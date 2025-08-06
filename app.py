@@ -34,6 +34,9 @@ app.config['UPLOAD_FOLDER_ELENCO'] = UPLOAD_FOLDER_ELENCO
 app.config['UPLOAD_FOLDER_SERVICIOS'] = UPLOAD_FOLDER_SERVICIOS
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB máximo
 
+for folder in [UPLOAD_FOLDER, UPLOAD_FOLDER_ELENCO, UPLOAD_FOLDER_SERVICIOS]:
+    os.makedirs(folder, exist_ok=True)
+    
 # Configuración del logger para app.logger.warning
 logging.basicConfig(level=logging.INFO)
 
@@ -48,10 +51,101 @@ ORDEN_FILTROS = ['talleres-ninos', 'talleres-adultos', 'servicios-pre-funcion', 
 # Archivos donde se guardarán los datos
 OBRAS_FILE = 'obras.json'
 SERVICIOS_FILE = 'servicios.json'
+DATA_FILE = 'teatro_faq.json'
 
 # Las variables CATEGORIAS_SERVICIOS y NOMBRES_CATEGORIAS ya no son globales y estáticas
 # Ahora se generarán dinámicamente dentro de cargar_servicios()
 
+def init_json_data():
+    initial_data = {
+        "categorias": [
+            {"id": 1, "nombre": "Todas", "slug": "all", "creado_en": datetime.now().isoformat()},
+            {"id": 2, "nombre": "Reservas", "slug": "reservas", "creado_en": datetime.now().isoformat()},
+            {"id": 3, "nombre": "Espectáculos", "slug": "espectaculos", "creado_en": datetime.now().isoformat()},
+            {"id": 4, "nombre": "Precios", "slug": "precios", "creado_en": datetime.now().isoformat()},
+            {"id": 5, "nombre": "Ubicación", "slug": "ubicacion", "creado_en": datetime.now().isoformat()}
+        ],
+        "preguntas": [
+            {
+                "id": 1,
+                "pregunta": "¿Cómo puedo reservar entradas para un espectáculo?",
+                "respuesta": "Puedes reservar tus entradas de varias formas: a través de nuestro sitio web, llamando directamente al teatro, o visitando nuestra taquilla. Recomendamos reservar con anticipación, especialmente para espectáculos populares, ya que las entradas suelen agotarse rápidamente.",
+                "categoria_id": 2,
+                "activa": True,
+                "orden": 0,
+                "creado_en": datetime.now().isoformat()
+            },
+            {
+                "id": 2,
+                "pregunta": "¿Puedo cancelar o cambiar mi reserva?",
+                "respuesta": "Sí, puedes cancelar o modificar tu reserva hasta 24 horas antes del espectáculo. Para cambios realizados con menos de 24 horas de anticipación, se aplicará una tarifa administrativa. Las cancelaciones realizadas el mismo día del evento no son reembolsables.",
+                "categoria_id": 2,
+                "activa": True,
+                "orden": 1,
+                "creado_en": datetime.now().isoformat()
+            },
+            {
+                "id": 3,
+                "pregunta": "¿Ofrecen descuentos para estudiantes o grupos?",
+                "respuesta": "¡Por supuesto! Ofrecemos descuentos del 20% para estudiantes con identificación válida, 15% para grupos de 10 o más personas, y descuentos especiales para adultos mayores. También tenemos promociones especiales durante ciertas fechas del año.",
+                "categoria_id": 4,
+                "activa": True,
+                "orden": 0,
+                "creado_en": datetime.now().isoformat()
+            },
+            {
+                "id": 4,
+                "pregunta": "¿Cuánto tiempo duran los espectáculos?",
+                "respuesta": "La duración varía según el espectáculo. Generalmente, nuestras obras duran entre 90 y 120 minutos, incluyendo un intermedio de 15 minutos. La información específica sobre la duración se incluye en cada descripción del espectáculo y en tu boleto.",
+                "categoria_id": 3,
+                "activa": True,
+                "orden": 0,
+                "creado_en": datetime.now().isoformat()
+            }
+        ],
+        "next_categoria_id": 6,
+        "next_pregunta_id": 5
+    }
+    return initial_data
+
+# Funciones auxiliares para manejar el JSON
+def load_data():
+    """Cargar datos desde el archivo JSON"""
+    if not os.path.exists(DATA_FILE):
+        data = init_json_data()
+        save_data(data)
+        return data
+    
+    try:
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, FileNotFoundError):
+        # Si hay error, crear archivo nuevo con datos iniciales
+        data = init_json_data()
+        save_data(data)
+        return data
+
+def save_data(data):
+    """Guardar datos en el archivo JSON"""
+    with open(DATA_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+def get_categoria_by_id(categoria_id, data):
+    """Obtener categoría por ID"""
+    for categoria in data['categorias']:
+        if categoria['id'] == categoria_id:
+            return categoria
+    return None
+
+def get_pregunta_by_id(pregunta_id, data):
+    """Obtener pregunta por ID"""
+    for pregunta in data['preguntas']:
+        if pregunta['id'] == pregunta_id:
+            return pregunta
+    return None
+
+# Inicializar datos al cargar la aplicación
+load_data()
 
 def login_required(f):
     @wraps(f)
@@ -264,7 +358,43 @@ def home():
 
 @app.route('/contactanos')
 def contactanos():
-    return render_template('contactanos.html')
+    """Vista pública de consultas frecuentes - ahora desde JSON"""
+    data = load_data()
+    
+    # Obtener preguntas activas con sus categorías
+    preguntas_con_categoria = []
+    for pregunta in data['preguntas']:
+        if pregunta['activa']:
+            categoria = get_categoria_by_id(pregunta['categoria_id'], data)
+            if categoria and categoria['slug'] != 'all':
+                pregunta_data = (
+                    pregunta['id'],
+                    pregunta['pregunta'],
+                    pregunta['respuesta'],
+                    categoria['nombre'],
+                    categoria['slug']
+                )
+                preguntas_con_categoria.append(pregunta_data)
+    
+    # Ordenar por categoría y orden
+    preguntas_con_categoria.sort(key=lambda x: (x[3], 
+                                  next((p['orden'] for p in data['preguntas'] if p['id'] == x[0]), 0), 
+                                  x[0]))
+    
+    # Obtener categorías que tienen preguntas activas
+    categorias_con_preguntas = set()
+    for pregunta in data['preguntas']:
+        if pregunta['activa']:
+            categoria = get_categoria_by_id(pregunta['categoria_id'], data)
+            if categoria and categoria['slug'] != 'all':
+                categorias_con_preguntas.add((categoria['id'], categoria['nombre'], categoria['slug']))
+    
+    categorias_activas = list(categorias_con_preguntas)
+    categorias_activas.sort(key=lambda x: x[1])
+    
+    return render_template('contactanos.html', 
+                         preguntas=preguntas_con_categoria, 
+                         categorias=categorias_activas)
 
 @app.route('/api/obras')
 def api_obras():
@@ -787,6 +917,176 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/admin/consultas')
+def admin_consultas():
+    """Vista principal de administración de consultas frecuentes"""
+    data = load_data()
+    
+    # Preparar datos para el template (similar a como venían de SQLite)
+    preguntas_con_categoria = []
+    for pregunta in data['preguntas']:
+        categoria = get_categoria_by_id(pregunta['categoria_id'], data)
+        if categoria and categoria['slug'] != 'all':
+            pregunta_data = (
+                pregunta['id'],
+                pregunta['pregunta'],
+                pregunta['respuesta'],
+                pregunta['activa'],
+                pregunta['orden'],
+                categoria['nombre'],
+                categoria['slug']
+            )
+            preguntas_con_categoria.append(pregunta_data)
+    
+    # Ordenar por categoría y orden
+    preguntas_con_categoria.sort(key=lambda x: (x[5], x[4], x[0]))
+    
+    # Obtener categorías (excepto "Todas")
+    categorias = [(cat['id'], cat['nombre'], cat['slug']) 
+                  for cat in data['categorias'] if cat['slug'] != 'all']
+    categorias.sort(key=lambda x: x[1])
+    
+    return render_template('admin_consultas.html', 
+                         preguntas=preguntas_con_categoria, 
+                         categorias=categorias)
+
+@app.route('/admin/consultas/nueva', methods=['GET', 'POST'])
+def nueva_consulta():
+    """Crear nueva consulta frecuente"""
+    data = load_data()
+    
+    if request.method == 'POST':
+        pregunta = request.form['pregunta'].strip()
+        respuesta = request.form['respuesta'].strip()
+        categoria_id = int(request.form['categoria_id'])
+        orden = int(request.form.get('orden', 0))
+        
+        # Crear nueva pregunta
+        nueva_pregunta = {
+            "id": data['next_pregunta_id'],
+            "pregunta": pregunta,
+            "respuesta": respuesta,
+            "categoria_id": categoria_id,
+            "activa": True,
+            "orden": orden,
+            "creado_en": datetime.now().isoformat()
+        }
+        
+        data['preguntas'].append(nueva_pregunta)
+        data['next_pregunta_id'] += 1
+        
+        save_data(data)
+        flash('Consulta creada exitosamente', 'success')
+        return redirect(url_for('admin_consultas'))
+    
+    # GET - Mostrar formulario
+    categorias = [(cat['id'], cat['nombre']) 
+                  for cat in data['categorias'] if cat['slug'] != 'all']
+    categorias.sort(key=lambda x: x[1])
+    
+    return render_template('admin_consultas.html', categorias=categorias, modo='crear')
+
+@app.route('/admin/consultas/editar/<int:id>', methods=['GET', 'POST'])
+def editar_consulta(id):
+    """Editar consulta frecuente existente"""
+    data = load_data()
+    pregunta_actual = get_pregunta_by_id(id, data)
+    
+    if not pregunta_actual:
+        flash('Consulta no encontrada', 'error')
+        return redirect(url_for('admin_consultas'))
+    
+    if request.method == 'POST':
+        pregunta_actual['pregunta'] = request.form['pregunta'].strip()
+        pregunta_actual['respuesta'] = request.form['respuesta'].strip()
+        pregunta_actual['categoria_id'] = int(request.form['categoria_id'])
+        pregunta_actual['orden'] = int(request.form.get('orden', 0))
+        pregunta_actual['activa'] = 'activa' in request.form
+        
+        save_data(data)
+        flash('Consulta actualizada exitosamente', 'success')
+        return redirect(url_for('admin_consultas'))
+    
+    # GET - Mostrar formulario con datos existentes
+    categorias = [(cat['id'], cat['nombre']) 
+                  for cat in data['categorias'] if cat['slug'] != 'all']
+    categorias.sort(key=lambda x: x[1])
+    
+    # Convertir a tupla para compatibilidad con template
+    pregunta_tuple = (
+        pregunta_actual['id'],
+        pregunta_actual['pregunta'],
+        pregunta_actual['respuesta'],
+        pregunta_actual['categoria_id'],
+        pregunta_actual['orden'],
+        pregunta_actual['activa']
+    )
+    
+    return render_template('admin_consultas.html', 
+                         pregunta_actual=pregunta_tuple,
+                         categorias=categorias, 
+                         modo='editar')
+
+@app.route('/admin/consultas/eliminar/<int:id>', methods=['POST'])
+def eliminar_consulta(id):
+    """Eliminar consulta frecuente"""
+    data = load_data()
+    
+    # Buscar y eliminar la pregunta
+    data['preguntas'] = [p for p in data['preguntas'] if p['id'] != id]
+    
+    save_data(data)
+    flash('Consulta eliminada exitosamente', 'success')
+    return redirect(url_for('admin_consultas'))
+
+@app.route('/admin/consultas/toggle/<int:id>', methods=['POST'])
+def toggle_consulta(id):
+    """Activar/Desactivar consulta frecuente"""
+    data = load_data()
+    pregunta = get_pregunta_by_id(id, data)
+    
+    if pregunta:
+        pregunta['activa'] = not pregunta['activa']
+        save_data(data)
+        return jsonify({'success': True})
+    
+    return jsonify({'success': False})
+
+# RUTAS PARA GESTIÓN DE CATEGORÍAS
+
+@app.route('/admin/categorias/nueva', methods=['POST'])
+def nueva_categoria():
+    """Crear nueva categoría"""
+    data = load_data()
+    nombre = request.form['nombre'].strip()
+    
+    # Crear slug from nombre
+    slug = nombre.lower().replace(' ', '_')
+    # Reemplazar caracteres especiales
+    replacements = {'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ñ': 'n'}
+    for old, new in replacements.items():
+        slug = slug.replace(old, new)
+    
+    # Verificar que no exista una categoría con el mismo nombre o slug
+    for categoria in data['categorias']:
+        if categoria['nombre'].lower() == nombre.lower() or categoria['slug'] == slug:
+            flash('Ya existe una categoría con ese nombre', 'error')
+            return redirect(url_for('admin_consultas'))
+    
+    # Crear nueva categoría
+    nueva_categoria = {
+        "id": data['next_categoria_id'],
+        "nombre": nombre,
+        "slug": slug,
+        "creado_en": datetime.now().isoformat()
+    }
+    
+    data['categorias'].append(nueva_categoria)
+    data['next_categoria_id'] += 1
+    
+    save_data(data)
+    flash('Categoría creada exitosamente', 'success')
+    return redirect(url_for('admin_consultas'))
 
 # Logout
 @app.route('/logout')

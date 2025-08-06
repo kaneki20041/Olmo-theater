@@ -11,356 +11,460 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
         }
-        
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Barra lateral */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 15px 25px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-left-color: #667eea;
+            color: #667eea;
+        }
+
+        .menu-item.active {
+            background: rgba(255, 107, 53, 0.1);
+            border-left-color: #ff6b35;
+            color: #ff6b35;
+            font-weight: bold;
+        }
+
+        .menu-item i {
+            width: 20px;
+            margin-right: 15px;
+            text-align: center;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            margin: 20px 25px;
+        }
+
+        .logout-item {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .logout-item:hover {
+            background: rgba(220, 53, 69, 0.2);
+            border-left-color: #dc3545;
+        }
+
+        /* Contenido principal */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
         }
-        
+
         .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-            color: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
             padding: 30px;
             text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
         }
-        
+
         .header h1 {
-            font-size: 2.5rem;
+            color: #333;
+            font-size: 32px;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
-        
+
         .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+            color: #666;
+            font-size: 16px;
         }
-        
+
         .nav-buttons {
-            padding: 20px 30px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 30px;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
         }
-        
+
         .btn {
+            display: inline-block;
             padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+            border-radius: 50px;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 500;
             transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            text-align: center;
         }
-        
+
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
         }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
+
         .btn-secondary {
-            background: #6c757d;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
             color: white;
         }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-        
+
         .btn-success {
-            background: #28a745;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
             color: white;
         }
-        
-        .btn-success:hover {
-            background: #218838;
-            transform: translateY(-2px);
-        }
-        
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-        
+
         .btn-warning {
-            background: #ffc107;
-            color: #212529;
+            background: linear-gradient(135deg, #f7931e, #ffd200);
+            color: white;
         }
-        
-        .btn-warning:hover {
-            background: #e0a800;
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
-        
+
         .btn-sm {
             padding: 8px 16px;
-            font-size: 12px;
+            font-size: 14px;
         }
-        
+
         .content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
             padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
-        
+
         .alert {
-            padding: 15px;
-            border-radius: 8px;
+            padding: 15px 20px;
+            border-radius: 10px;
             margin-bottom: 20px;
-            border: 1px solid transparent;
+            font-weight: 500;
         }
-        
+
         .alert-success {
-            background-color: #d4edda;
-            border-color: #c3e6cb;
+            background: rgba(40, 167, 69, 0.1);
             color: #155724;
+            border-left: 4px solid #28a745;
         }
-        
+
         .alert-error {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
+            background: rgba(220, 53, 69, 0.1);
             color: #721c24;
+            border-left: 4px solid #dc3545;
         }
-        
+
         .category-section {
             margin-bottom: 40px;
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            overflow: hidden;
         }
-        
+
         .category-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
         }
-        
+
         .category-title {
-            font-size: 1.5rem;
-            font-weight: 600;
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
         }
-        
+
+        .badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
         .services-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
         }
-        
+
         .service-card {
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            overflow: hidden;
-            transition: all 0.3s ease;
             background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
         }
-        
+
         .service-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
-        
+
         .service-image {
             width: 100%;
             height: 200px;
             object-fit: cover;
         }
-        
+
         .service-info {
             padding: 20px;
         }
-        
+
         .service-title {
-            font-size: 1.2rem;
-            font-weight: 600;
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
             margin-bottom: 10px;
-            color: #2c3e50;
         }
-        
+
         .service-description {
-            color: #6c757d;
-            margin-bottom: 15px;
+            color: #666;
+            font-size: 14px;
             line-height: 1.5;
+            margin-bottom: 15px;
         }
-        
+
         .service-status {
-            display: inline-block;
-            padding: 4px 12px;
+            padding: 8px 12px;
             border-radius: 20px;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 500;
             margin-bottom: 15px;
+            display: inline-block;
         }
-        
+
         .service-status.active {
-            background-color: #d4edda;
-            color: #155724;
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
         }
-        
+
         .service-status.inactive {
-            background-color: #f8d7da;
-            color: #721c24;
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
         }
-        
+
         .service-actions {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
-        
+
         .empty-category {
-            padding: 40px;
             text-align: center;
-            color: #6c757d;
-            font-style: italic;
+            padding: 60px 20px;
+            color: #666;
         }
-        
+
+        /* Responsive */
         @media (max-width: 768px) {
+            .sidebar {
+                width: 250px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
+
             .nav-buttons {
                 flex-direction: column;
                 align-items: stretch;
             }
-            
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-            
+
             .services-grid {
                 grid-template-columns: 1fr;
-            }
-            
-            .service-actions {
-                flex-direction: column;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-cogs"></i> Administración de Servicios</h1>
-            <p>Gestiona los servicios del Teatro Olmo</p>
-        </div>
-        
-        <div class="nav-buttons">
-            <div>
-                <a href="{{ url_for('nuevo_servicio') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Nuevo Servicio
-                </a>
-                <a href="{{ url_for('admin_obras') }}" class="btn btn-secondary">
-                    <i class="fas fa-theater-masks"></i> Administrar Obras
-                </a>
+    <div class="admin-layout">
+        <!-- Barra lateral -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-theater-masks"></i> Teatro Olmo</h2>
+                <p>Panel de Administración</p>
             </div>
-            <div>
-                <a href="{{ url_for('home') }}" class="btn btn-success">
+            <div class="sidebar-menu">
+                <a href="{{ url_for('admin_servicios') }}" class="menu-item active">
+                    <i class="fas fa-cogs"></i> Servicios
+                </a>
+                <a href="{{ url_for('admin_obras') }}" class="menu-item">
+                    <i class="fas fa-theater-masks"></i> Obras
+                </a>
+                <a href="{{ url_for('admin_consultas') }}" class="menu-item">
+                    <i class="fas fa-question-circle"></i> Consultas Frecuentes
+                </a>
+                <div class="menu-divider"></div>
+                <a href="{{ url_for('home') }}" class="menu-item">
                     <i class="fas fa-home"></i> Ver Sitio Web
                 </a>
+                <a href="{{ url_for('logout') }}" class="menu-item logout-item">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
             </div>
-        </div>
-        
-        <div class="content">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-            
-            {% for categoria, lista_servicios in servicios.items() %}
-                <div class="category-section">
-                    <div class="category-header">
-                        <h2 class="category-title">{{ nombres_categorias[categoria] }}</h2>
-                        <span class="badge">
-                            {% if categoria in servicios %}
-                                {{ servicios[categoria]|length }} servicios
-                            {% else %}
-                                0 servicios
-                            {% endif %}
-                        </span>
+        </nav>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <div class="container">
+                <div class="header">
+                    <h1><i class="fas fa-cogs"></i> Administración de Servicios</h1>
+                    <p>Gestiona los servicios del Teatro Olmo</p>
+                </div>
+                
+                <div class="nav-buttons">
+                    <div>
+                        <a href="{{ url_for('nuevo_servicio') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Nuevo Servicio
+                        </a>
                     </div>
-                    
-                    {% if lista_servicios %}
-                        <div class="services-grid">
-                            {% for servicio in lista_servicios %}
-                                <div class="service-card">
-                                    <img src="{{ servicio.imagen }}" alt="{{ servicio.alt }}" class="service-image">
-                                    <div class="service-info">
-                                        <h3 class="service-title">{{ servicio.titulo }}</h3>
-                                        <p class="service-description">{{ servicio.descripcion }}</p>
-                                        <div class="service-status {{ 'active' if servicio.get('activo', True) else 'inactive' }}">
-                                            {% if servicio.get('activo', True) %}
-                                                <i class="fas fa-check-circle"></i> Activo
-                                            {% else %}
-                                                <i class="fas fa-times-circle"></i> Inactivo
-                                            {% endif %}
-                                        </div>
-                                        <div class="service-actions">
-                                            <a href="{{ url_for('editar_servicio', categoria=categoria, servicio_id=servicio.id) }}" class="btn btn-warning btn-sm">
-                                                <i class="fas fa-edit"></i> Editar
-                                            </a>
-                                            <a href="{{ url_for('toggle_servicio', categoria=categoria, servicio_id=servicio.id) }}" class="btn btn-secondary btn-sm">
-                                                {% if servicio.get('activo', True) %}
-                                                    <i class="fas fa-eye-slash"></i> Desactivar
-                                                {% else %}
-                                                    <i class="fas fa-eye"></i> Activar
-                                                {% endif %}
-                                            </a>
-                                            <a href="{{ url_for('eliminar_servicio', categoria=categoria, servicio_id=servicio.id) }}" 
-                                               class="btn btn-danger btn-sm" 
-                                               onclick="return confirm('¿Estás seguro de que quieres eliminar este servicio?')">
-                                                <i class="fas fa-trash"></i> Eliminar
-                                            </a>
-                                        </div>
-                                    </div>
+                </div>
+                
+                <div class="content">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                                    {{ message }}
                                 </div>
                             {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    {% for categoria, lista_servicios in servicios.items() %}
+                        <div class="category-section">
+                            <div class="category-header">
+                                <h2 class="category-title">{{ nombres_categorias[categoria] }}</h2>
+                                <span class="badge">
+                                    {% if categoria in servicios %}
+                                        {{ servicios[categoria]|length }} servicios
+                                    {% else %}
+                                        0 servicios
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            {% if lista_servicios %}
+                                <div class="services-grid">
+                                    {% for servicio in lista_servicios %}
+                                        <div class="service-card">
+                                            <img src="{{ servicio.imagen }}" alt="{{ servicio.alt }}" class="service-image">
+                                            <div class="service-info">
+                                                <h3 class="service-title">{{ servicio.titulo }}</h3>
+                                                <p class="service-description">{{ servicio.descripcion }}</p>
+                                                <div class="service-status {{ 'active' if servicio.get('activo', True) else 'inactive' }}">
+                                                    {% if servicio.get('activo', True) %}
+                                                        <i class="fas fa-check-circle"></i> Activo
+                                                    {% else %}
+                                                        <i class="fas fa-times-circle"></i> Inactivo
+                                                    {% endif %}
+                                                </div>
+                                                <div class="service-actions">
+                                                    <a href="{{ url_for('editar_servicio', categoria=categoria, servicio_id=servicio.id) }}" class="btn btn-warning btn-sm">
+                                                        <i class="fas fa-edit"></i> Editar
+                                                    </a>
+                                                    <a href="{{ url_for('toggle_servicio', categoria=categoria, servicio_id=servicio.id) }}" class="btn btn-secondary btn-sm">
+                                                        {% if servicio.get('activo', True) %}
+                                                            <i class="fas fa-eye-slash"></i> Desactivar
+                                                        {% else %}
+                                                            <i class="fas fa-eye"></i> Activar
+                                                        {% endif %}
+                                                    </a>
+                                                    <a href="{{ url_for('eliminar_servicio', categoria=categoria, servicio_id=servicio.id) }}" 
+                                                       class="btn btn-danger btn-sm" 
+                                                       onclick="return confirm('¿Estás seguro de que quieres eliminar este servicio?')">
+                                                        <i class="fas fa-trash"></i> Eliminar
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="empty-category">
+                                    <i class="fas fa-inbox fa-3x" style="margin-bottom: 20px; opacity: 0.5;"></i>
+                                    <p>No hay servicios en esta categoría</p>
+                                    <a href="{{ url_for('nuevo_servicio') }}" class="btn btn-primary" style="margin-top: 15px;">
+                                        <i class="fas fa-plus"></i> Agregar Primer Servicio
+                                    </a>
+                                </div>
+                            {% endif %}
                         </div>
-                    {% else %}
-                        <div class="empty-category">
-                            <i class="fas fa-inbox fa-3x" style="margin-bottom: 20px; opacity: 0.5;"></i>
-                            <p>No hay servicios en esta categoría</p>
-                            <a href="{{ url_for('nuevo_servicio') }}" class="btn btn-primary" style="margin-top: 15px;">
-                                <i class="fas fa-plus"></i> Agregar Primer Servicio
-                            </a>
-                        </div>
-                    {% endif %}
+                    {% endfor %}
                 </div>
-            {% endfor %}
-        </div>
+            </div>
+        </main>
     </div>
 </body>
 </html>

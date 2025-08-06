@@ -3,90 +3,426 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administración de Obras</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styless.css') }}">
+    <title>Administración de Obras - Teatro Olmo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+    body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #050a24;
+    color: white; 
+    position: relative;
+    }
+
+    body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(white, rgba(255, 255, 255, 0.2) 2px, transparent 2px),
+        radial-gradient(white, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+        radial-gradient(white, rgba(255, 255, 255, 0.1) 2px, transparent 2px);
+    background-size: 550px 550px, 350px 350px, 250px 250px;
+    background-position: 0 0, 40px 60px, 130px 270px;
+    z-index: -1; 
+    pointer-events: none; 
+    }
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Barra lateral */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 15px 25px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-left-color: #667eea;
+            color: #667eea;
+        }
+
+        .menu-item.active {
+            background: rgba(255, 107, 53, 0.1);
+            border-left-color: #ff6b35;
+            color: #ff6b35;
+            font-weight: bold;
+        }
+
+        .menu-item i {
+            width: 20px;
+            margin-right: 15px;
+            text-align: center;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            margin: 20px 25px;
+        }
+
+        .logout-item {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .logout-item:hover {
+            background: rgba(220, 53, 69, 0.2);
+            border-left-color: #dc3545;
+        }
+
+        /* Contenido principal */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            text-align: center;
+        }
+
+        .header-content h1 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header-content p {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f7931e, #ffd200);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .flash-messages {
+            margin-bottom: 30px;
+        }
+
+        .flash-message {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .flash-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .flash-error {
+            background: rgba(220, 53, 69, 0.1);
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .mes-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .mes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .mes-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .obra-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .obra-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .obra-info {
+            display: grid;
+            grid-template-columns: 150px 1fr auto;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .obra-img {
+            width: 150px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .obra-details h4 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .obra-details p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .obra-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 250px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
+
+            .obra-info {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .obra-actions {
+                flex-direction: row;
+                justify-content: center;
+            }
+
+            .mes-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="admin-container">
-    <div class="admin-header">
-        <a href="{{ url_for('logout') }}" class="btn btn-logout">Cerrar sesión</a>
-
-        <div class="header-content">
-            <h1>🎭 Administración de Obras</h1>
-            <p>Gestiona las obras de teatro por mes</p>
-            <a href="{{ url_for('admin_servicios') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Crear Servicio
-            </a>
-            <div style="margin-top: 15px;">
-                <a href="{{ url_for('nueva_obra_sin_mes') }}" class="btn" style="background: #ff6b35;">+ Crear Obra en Nuevo Mes</a>
+    <div class="admin-layout">
+        <!-- Barra lateral -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-theater-masks"></i> Teatro Olmo</h2>
+                <p>Panel de Administración</p>
             </div>
-        </div>
-    </div>
-</div>
+            <div class="sidebar-menu">
+                <a href="{{ url_for('admin_servicios') }}" class="menu-item">
+                    <i class="fas fa-cogs"></i> Servicios
+                </a>
+                <a href="{{ url_for('admin_obras') }}" class="menu-item active">
+                    <i class="fas fa-theater-masks"></i> Obras
+                </a>
+                <a href="{{ url_for('admin_consultas') }}" class="menu-item">
+                    <i class="fas fa-question-circle"></i> Consultas Frecuentes
+                </a>
+                <div class="menu-divider"></div>
+                <a href="{{ url_for('home') }}" class="menu-item">
+                    <i class="fas fa-home"></i> Ver Sitio Web
+                </a>
+                <a href="{{ url_for('logout') }}" class="menu-item logout-item">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
+        </nav>
 
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-messages">
-                    {% for category, message in messages %}
-                        <div class="flash-message flash-{{ category }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-        
-        {% for mes, datos in obras.items() %}
-            <div class="mes-section">
-                <div class="mes-header">
-                    <div>
-                        <div class="mes-title">{{ mes }}</div>
-                        <div class="fecha-activacion">
-
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <div class="admin-container">
+                <div class="admin-header">
+                    <div class="header-content">
+                        <h1>🎭 Administración de Obras</h1>
+                        <p>Gestiona las obras de teatro por mes</p>
+                        <div style="margin-top: 15px;">
+                            <a href="{{ url_for('nueva_obra_sin_mes') }}" class="btn" style="background: #ff6b35;">+ Crear Obra en Nuevo Mes</a>
                         </div>
                     </div>
-                    <a href="{{ url_for('nueva_obra', mes=mes) }}" class="btn">+ Nueva Obra</a>
                 </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                            {% for category, message in messages %}
+                                <div class="flash-message flash-{{ category }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
                 
-                {% if datos.obras %}
-                    {% for obra in datos.obras %}
-                        <div class="obra-card">
-                            <div class="obra-info">
-                                <div>
-                                    <img src="{{ obra.imagen }}" alt="{{ obra.titulo }}" class="obra-img" onerror="this.src='/static/images/placeholder.png'">
-                                </div>
-                                <div class="obra-details">
-                                    <h4>{{ obra.titulo }}</h4>
-                                    <p>{{ obra.descripcion[:100] }}{% if obra.descripcion|length > 100 %}...{% endif %}</p>
-                                    <p><strong>Activo desde:</strong> {{ obra.activarDesde }}</p>
-                                    <p><strong>Elenco:</strong> 
-                                        {% for actor in obra.elenco %}
-                                            {{ actor.nombre }}{% if not loop.last %}, {% endif %}
-                                        {% endfor %}
-                                    </p>
-                                </div>
-                                <div class="obra-actions">
-                                    <a href="{{ url_for('editar_obra', mes=mes, obra_index=loop.index0) }}" class="btn btn-warning">Editar</a>
-                                    <a href="{{ url_for('eliminar_obra', mes=mes, obra_index=loop.index0) }}" 
-                                    class="btn btn-danger" 
-                                    onclick="return confirm('¿Estás seguro de que quieres eliminar esta obra?')">
-                                    Eliminar
-                                    </a>
+                {% for mes, datos in obras.items() %}
+                    <div class="mes-section">
+                        <div class="mes-header">
+                            <div>
+                                <div class="mes-title">{{ mes }}</div>
+                                <div class="fecha-activacion">
+                                    <!-- Aquí puedes agregar información adicional del mes -->
                                 </div>
                             </div>
+                            <a href="{{ url_for('nueva_obra', mes=mes) }}" class="btn btn-primary">+ Nueva Obra</a>
                         </div>
-                    {% endfor %}
-
-                {% else %}
-                    <p style="text-align: center; color: #666; font-style: italic;">No hay obras para este mes</p>
-                {% endif %}
+                        
+                        {% if datos.obras %}
+                            {% for obra in datos.obras %}
+                                <div class="obra-card">
+                                    <div class="obra-info">
+                                        <div>
+                                            <img src="{{ obra.imagen }}" alt="{{ obra.titulo }}" class="obra-img" onerror="this.src='/static/images/placeholder.png'">
+                                        </div>
+                                        <div class="obra-details">
+                                            <h4>{{ obra.titulo }}</h4>
+                                            <p>{{ obra.descripcion[:100] }}{% if obra.descripcion|length > 100 %}...{% endif %}</p>
+                                            <p><strong>Activo desde:</strong> {{ obra.activarDesde }}</p>
+                                            <p><strong>Elenco:</strong> 
+                                                {% for actor in obra.elenco %}
+                                                    {{ actor.nombre }}{% if not loop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </p>
+                                        </div>
+                                        <div class="obra-actions">
+                                            <a href="{{ url_for('editar_obra', mes=mes, obra_index=loop.index0) }}" class="btn btn-warning">Editar</a>
+                                            <a href="{{ url_for('eliminar_obra', mes=mes, obra_index=loop.index0) }}" 
+                                            class="btn btn-danger" 
+                                            onclick="return confirm('¿Estás seguro de que quieres eliminar esta obra?')">
+                                            Eliminar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p style="text-align: center; color: #666; font-style: italic; padding: 40px;">No hay obras para este mes</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
-        
-        <div style="text-align: center; margin-top: 30px;">
-            <a href="{{ url_for('home') }}" class="btn">← Volver al sitio principal</a>
-        </div>
+        </main>
     </div>
 </body>
 </html>
