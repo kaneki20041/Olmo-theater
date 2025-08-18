@@ -379,45 +379,6 @@
             color: #e1b700;
         }
 
-        @media (max-width: 768px) {
-            .menu-toggle {
-                display: block;
-            }
-
-            .sidebar {
-                width: 250px;
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            .admin-container {
-                padding: 1rem;
-            }
-
-            .table-header,
-            .obra-row {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-                text-align: center;
-            }
-
-            .obra-image {
-                justify-self: center;
-            }
-
-            .actions-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .category-filters {
-                justify-content: center;
-            }
-        }
-
         /* Modal de confirmación */
         .modal {
             display: none;
@@ -467,6 +428,64 @@
             padding: 0.75rem 1.5rem;
             border-radius: 5px;
             cursor: pointer;
+        }
+
+
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 28px;
+            background: none;
+            border: none;
+            color: rgb(210, 233, 0);
+            z-index: 1100;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block; /* ← Ahora esto funcionará correctamente */
+            }
+
+            .sidebar {
+                width: 250px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
+
+            .admin-container {
+                padding: 1rem;
+            }
+
+            .table-header,
+            .obra-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            .obra-image {
+                justify-self: center;
+            }
+
+            .actions-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .category-filters {
+                justify-content: center;
+            }
         }
     </style>
 </head>

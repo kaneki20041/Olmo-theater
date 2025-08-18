@@ -359,23 +359,38 @@
             align-items: end;
         }
 
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 28px;
+            background: none;
+            border: none;
+            color: rgb(210, 233, 0);
+            z-index: 1100;
+            cursor: pointer;
+        }
+
         @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                position: relative;
-                height: auto;
+            .menu-toggle {
+                display: block;
             }
-            
+            .sidebar {
+                width: 250px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                height: 200dvh; /* Aquí el cambio */
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
             .main-content {
                 margin-left: 0;
-                padding: 20px;
+                padding: 20px 15px; 
             }
             
-            .admin-container {
-                margin: 10px;
-                border-radius: 15px;
-            }
-            
+
             .stats {
                 grid-template-columns: 1fr;
             }
@@ -387,6 +402,7 @@
     </style>
 </head>
 <body>
+    <button id="menu-toggle" class="menu-toggle">&#9776;</button>
     <div class="admin-layout">
         <!-- Barra lateral -->
         <div class="sidebar">
@@ -546,6 +562,12 @@
     </div>
 
     <script>
+        const toggleButton = document.getElementById('menu-toggle');
+        const sidebar = document.querySelector('.sidebar');
+
+        toggleButton.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
         let clients = [];
         const API_BASE = '';
 
