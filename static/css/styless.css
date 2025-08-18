@@ -10,6 +10,7 @@
 @import 'admin_obras.css';
 @import 'editar_obra.css';
 @import 'nueva_obra.css';
+@import 'obras_historicas.css';
 
 
 
@@ -62,10 +63,10 @@ body::before {
   .mobile-menu-toggle {
     display: flex;
     position: fixed;
-    top: 15px;
+    top: 10px;
     right: 15px;
     z-index: 1001;
-    background: white;
+    background: rgb(158, 9, 9);
     padding: 10px;
     border-radius: 5px;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
@@ -88,7 +89,7 @@ body::before {
     top: 60px; /* justo debajo del header */
     left: 0;
     width: 100%;
-    background: #dfee0a;
+    background: #e6f511e7;
     z-index: 999;
   }
 

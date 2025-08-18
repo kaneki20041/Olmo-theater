@@ -35,8 +35,6 @@ async function cargarObrasDesdeAPI() {
   }
 }
 
-
-
 function inicializarInterfaz() {
   const mesSpan = document.getElementById("currentMonth");
   const obrasContainer = document.getElementById("obrasContainer");
@@ -92,8 +90,6 @@ function actualizarObras() {
     obrasContainer.appendChild(proximoDiv);
   }
 }
-
-
 
   function mostrarModal(obra) {
     // Cargar imagen y alt
@@ -250,7 +246,6 @@ export function recargarObras() {
   });
 }
 
-
 let indiceActor = 1;
 
 export function agregarActor() {
@@ -260,12 +255,28 @@ export function agregarActor() {
     return;
   }
 
+  const currentIndex = indiceActor;
   const div = document.createElement('div');
   div.className = 'elenco-item';
+  div.style.border = '1px solid #e0e0e0';
+  div.style.padding = '15px';
+  div.style.marginBottom = '15px';
+  div.style.borderRadius = '8px';
+  div.style.backgroundColor = '#f9f9f9';
+  
   div.innerHTML = `
-    <input type="text" name="elenco[]" placeholder="Nombre del actor" required>
-    <input type="file" name="foto_elenco_${indiceActor}" accept="image/*">
-    <button type="button" class="btn btn-danger btn-sm eliminar-actor" onclick="eliminarActor(this)" title="Eliminar actor">🗑️</button>
+    <div class="actor-input-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+      <input type="text" name="elenco[]" placeholder="Nombre del actor" required style="flex: 1;">
+      <input type="file" name="foto_elenco_${currentIndex}" accept="image/*" 
+             onchange="mostrarVistaPrevia(this, 'preview-actor-${currentIndex}')"
+             id="foto-actor-${currentIndex}" style="flex: 1;">
+      <button type="button" class="btn btn-danger btn-sm eliminar-actor" onclick="eliminarActor(this)" title="Eliminar actor">🗑️</button>
+    </div>
+    <div class="actor-preview-container" style="margin-top: 10px; text-align: center;">
+      <img id="preview-actor-${currentIndex}" 
+           style="display: none; width: 80px; height: 80px; border: 2px solid #ddd; border-radius: 50%; object-fit: cover; transition: all 0.3s ease;"
+           alt="Vista previa foto actor">
+    </div>
   `;
   container.appendChild(div);
   indiceActor++;
@@ -287,48 +298,96 @@ window.eliminarActor = function (btn) {
   btn.closest('.elenco-item').remove();
 };
 
+// Función para mostrar vista previa de imagen
+function mostrarVistaPrevia(input, previewId) {
+  const preview = document.getElementById(previewId);
+  if (!preview) return;
+
+  const file = input.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      
+      // Si es vista previa de imagen principal, mostrar también el texto
+      if (previewId === 'imagen-preview') {
+        const previewText = document.getElementById('imagen-preview-text');
+        if (previewText) {
+          previewText.style.display = 'block';
+        }
+      }
+      
+      // Si es vista previa de actor, mostrar texto correspondiente
+      if (previewId.startsWith('preview-actor-')) {
+        const actorIndex = previewId.replace('preview-actor-', '');
+        const previewText = document.getElementById(`preview-text-${actorIndex}`);
+        if (previewText) {
+          previewText.style.display = 'block';
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+  } else {
+    preview.style.display = 'none';
+    
+    // Ocultar texto si es imagen principal
+    if (previewId === 'imagen-preview') {
+      const previewText = document.getElementById('imagen-preview-text');
+      if (previewText) {
+        previewText.style.display = 'none';
+      }
+    }
+    
+    // Ocultar texto si es actor
+    if (previewId.startsWith('preview-actor-')) {
+      const actorIndex = previewId.replace('preview-actor-', '');
+      const previewText = document.getElementById(`preview-text-${actorIndex}`);
+      if (previewText) {
+        previewText.style.display = 'none';
+      }
+    }
+  }
+}
+
+window.mostrarVistaPrevia = mostrarVistaPrevia;
+
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.querySelector("form");
   const mesInput = document.getElementById("mes");
   const fechaInput = document.getElementById("activar_desde");
   const archivoInput = document.getElementById("imagen_archivo");
-  const urlInput = document.getElementById("imagen_url");
 
   if (!form || !mesInput || !fechaInput) return;
 
-  // Validación al enviar
-  form.addEventListener("submit", function (e) {
-    const fechaStr = fechaInput.value;
-    if (!fechaStr) return;
-
-    const archivoSeleccionado = archivoInput && archivoInput.files.length > 0;
-    const urlEscrita = urlInput && urlInput.value.trim() !== "";
-
-    if (archivoSeleccionado && urlEscrita) {
-      e.preventDefault();
-      alert("Por favor, selecciona solo una imagen o coloca una URL, no ambas.");
-    }
-  });
-
-  // Desactivar uno si se usa el otro
-  if (archivoInput && urlInput) {
+  // Configurar vista previa de imagen si existe el input
+  if (archivoInput) {
     archivoInput.addEventListener("change", function () {
       if (archivoInput.files.length > 0) {
-        urlInput.disabled = true;
         archivoInput.title = "Archivo seleccionado: " + archivoInput.files[0].name;
         archivoInput.style.border = "2px solid green";
-      } else {
-        urlInput.disabled = false;
-        archivoInput.style.border = "";
-      }
-    });
-
-    urlInput.addEventListener("input", function () {
-      if (urlInput.value.trim() !== "") {
-        archivoInput.disabled = true;
-      } else {
-        archivoInput.disabled = false;
+        
+        // Mostrar vista previa
+        mostrarVistaPrevia(archivoInput, 'imagen-preview');
       }
     });
   }
+
+  // Validación al enviar - CORREGIDA
+  form.addEventListener("submit", function (e) {
+    const fechaStr = fechaInput.value;
+    if (!fechaStr) {
+      e.preventDefault();
+      alert("Por favor, selecciona una fecha de activación.");
+      return;
+    }
+
+    // Validar que se haya seleccionado una imagen (solo para nuevas obras)
+    const isEditing = document.getElementById('obra_index');
+    if (!isEditing && archivoInput && archivoInput.files.length === 0) {
+      e.preventDefault();
+      alert("Por favor, selecciona una imagen para la obra.");
+      return;
+    }
+  });
 });

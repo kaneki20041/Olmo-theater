@@ -44,20 +44,18 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="imagen_archivo">Subir Imagen desde Dispositivo</label>
+                    <label for="imagen_archivo">Imagen de la Obra</label>
                     <input type="file" id="imagen_archivo" name="imagen_archivo" 
-                           accept="image/png,image/jpeg,image/jpg,image/gif,image/webp">
+                        accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+                        onchange="mostrarVistaPrevia(this, 'imagen-preview')" required>
                     <div class="form-help">Formatos permitidos: PNG, JPG, JPEG, GIF, WEBP (máximo 16MB)</div>
-                </div>
-                
-                <div style="text-align: center; margin: 15px 0; color: #666; font-style: italic;">
-                    - O -
-                </div>
-                
-                <div class="form-group">
-                    <label for="imagen_url">URL de Imagen Externa</label>
-                    <input type="url" id="imagen_url" name="imagen_url" value="{{ obra.imagen if obra else '' }}">
-                    <div class="form-help">Ejemplo: /static/images/obra1.png o https://ejemplo.com/imagen.jpg</div>
+                    
+                    <!-- Vista previa -->
+                    <div class="imagen-preview-container" style="margin-top: 15px;">
+                        <img id="imagen-preview" 
+                            style="display: none; max-width: 300px; max-height: 200px; border: 2px solid #ddd; border-radius: 8px; object-fit: cover;"
+                            alt="Vista previa de la imagen">
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -75,36 +73,29 @@
                     <div class="form-help">Formato: "17 mayo, 24 mayo, 31 mayo" o "5, 12, 19 de agosto"</div>
                 </div>
                 
-                <div class="form-group">
-                    <label>Elenco</label>
-                    <div id="elenco-container">
-                        {% if obra and obra.elenco %}
-                            {% for i, actor in enumerate(obra.elenco) %}
-                            <div class="elenco-item">
-                                <input type="text" name="elenco[]" value="{{ actor.nombre }}" placeholder="Nombre del actor" required>
-                                <input type="file" name="foto_elenco_{{ loop.index0 }}" accept="image/*">
-                                <input type="hidden" name="foto_url_{{ loop.index0 }}" value="{{ actor.foto }}">
-                                {% if actor.foto %}
-                                    <div class="elenco-preview">
-                                        <img src="{{ actor.foto }}" alt="{{ actor.nombre }}">
-                                    </div>
-                                {% endif %}
-                                {% if not loop.first %}
-                                    <button type="button" class="btn btn-danger btn-sm eliminar-actor" onclick="eliminarActor(this)" title="Eliminar actor">🗑️</button>
-                                {% endif %}
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="elenco-item">
-                                <input type="text" name="elenco[]" placeholder="Nombre del actor" required>
-                                <input type="file" name="foto_elenco_0" accept="image/*">
-                            </div>
-                        {% endif %}
-                    </div>
-                    <button type="button" class="btn btn-small" onclick="agregarActor()">+ Agregar otro actor</button>
-                    <div class="form-help">Puedes subir una imagen o dejarla vacía si no tienes una. Máximo 16MB por archivo.</div>
-                </div>
-
+<div class="form-group">
+    <label>Elenco</label>
+    <div id="elenco-container">
+        <!-- Primer actor por defecto -->
+        <div class="elenco-item" style="border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; background-color: #f9f9f9;">
+            <div class="actor-input-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <input type="text" name="elenco[]" placeholder="Nombre del actor" required style="flex: 1;">
+                <input type="file" name="foto_elenco_0" accept="image/*" 
+                       onchange="mostrarVistaPrevia(this, 'preview-actor-0')"
+                       id="foto-actor-0" style="flex: 1;">
+                <button type="button" class="btn btn-danger btn-sm eliminar-actor" onclick="eliminarActor(this)" title="Eliminar actor">🗑️</button>
+            </div>
+            <div class="actor-preview-container" style="margin-top: 10px; text-align: center;">
+                <img id="preview-actor-0" 
+                     style="display: none; width: 80px; height: 80px; border: 2px solid #ddd; border-radius: 50%; object-fit: cover; transition: all 0.3s ease;"
+                     alt="Vista previa foto actor">
+            </div>
+        </div>
+    </div>
+    <button type="button" class="btn btn-secondary btn-sm" onclick="agregarActor()" style="margin-top: 10px;">
+        + Agregar Actor
+    </button>
+</div>
                 
                 <div class="form-actions">
                     <button type="submit" class="btn">

@@ -29,27 +29,35 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Imagen Actual</label>
-                    <div style="margin-bottom: 10px;">
-                        <img src="{{ obra.imagen }}" alt="Imagen actual" style="max-width: 200px; max-height: 150px; border-radius: 5px;">
+                    <label for="imagen_archivo">Imagen de la Obra</label>
+                    
+                    <!-- Mostrar imagen actual -->
+                    {% if obra.imagen %}
+                    <div class="imagen-actual" style="margin-bottom: 15px;">
+                        <p><strong>Imagen actual:</strong></p>
+                        <img src="{{ obra.imagen }}" alt="{{ obra.titulo }}" 
+                            style="max-width: 300px; max-height: 200px; border: 2px solid #ddd; border-radius: 8px; object-fit: cover;">
+                    </div>
+                    {% endif %}
+                    
+                    <input type="file" id="imagen_archivo" name="imagen_archivo" 
+                        accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+                        onchange="mostrarVistaPrevia(this, 'imagen-preview')">
+                    <div class="form-help">
+                        Formatos permitidos: PNG, JPG, JPEG, GIF, WEBP (máximo 16MB)<br>
+                        <small>Si no seleccionas una nueva imagen, se mantendrá la actual.</small>
                     </div>
                     
-                    <label for="imagen_archivo">Cambiar Imagen (Subir Nueva)</label>
-                    <input type="file" id="imagen_archivo" name="imagen_archivo" 
-                           accept="image/png,image/jpeg,image/jpg,image/gif,image/webp">
-                    <div class="form-help">Formatos permitidos: PNG, JPG, JPEG, GIF, WEBP (máximo 16MB)</div>
+                    <!-- Vista previa de nueva imagen -->
+                    <div class="imagen-preview-container" style="margin-top: 15px;">
+                        <img id="imagen-preview" 
+                            style="display: none; max-width: 300px; max-height: 200px; border: 2px solid #28a745; border-radius: 8px; object-fit: cover;"
+                            alt="Vista previa de la nueva imagen">
+                        <p id="imagen-preview-text" style="display: none; color: #28a745; font-weight: bold; margin-top: 5px;">
+                            Nueva imagen seleccionada
+                        </p>
+                    </div>
                 </div>
-                
-                <div style="text-align: center; margin: 15px 0; color: #666; font-style: italic;">
-                    - O -
-                </div>
-                
-                <div class="form-group">
-                    <label for="imagen_url">Cambiar a URL Externa</label>
-                    <input type="url" id="imagen_url" name="imagen_url" value="{{ obra.imagen }}">
-                    <div class="form-help">Ejemplo: /static/images/obra1.png o https://ejemplo.com/imagen.jpg</div>
-                </div>
-                
                 <div class="form-group">
                     <label for="activar_desde">Activar desde (fecha)</label>
                     <input type="date" id="activar_desde" name="activar_desde" value="2025-01-01" required>
@@ -64,36 +72,67 @@
                     <div class="form-help">Formato: "17 mayo, 24 mayo, 31 mayo" o "5, 12, 19 de agosto"</div>
                 </div>
                 
-                <div class="form-group">
-                    <label>Elenco</label>
-                    <div id="elenco-container">
-                      {% if obra and obra.elenco %}
-                        {% for actor in obra.elenco %}
-                        <div class="elenco-item">
-                            <input type="text" name="elenco[]" value="{{ actor.nombre }}" placeholder="Nombre del actor" required>
-                            <input type="file" name="foto_elenco_{{ loop.index0 }}" accept="image/*">
-                            <input type="hidden" name="foto_url_{{ loop.index0 }}" value="{{ actor.foto }}">
-                            {% if actor.foto %}
-                                <div class="elenco-preview">
-                                    <img src="{{ actor.foto }}" alt="{{ actor.nombre }}">
-                                </div>
-                            {% endif %}
-                                {% if not loop.first %}
-                                    <button type="button" class="btn btn-danger btn-sm eliminar-actor" onclick="eliminarActor(this)" title="Eliminar actor">🗑️</button>
-                                {% endif %}
-                        </div>
-                        {% endfor %}
-                        {% else %}
-        <div class="elenco-item">
-            <input type="text" name="elenco[]" placeholder="Nombre del actor" required>
-            <input type="file" name="foto_elenco_0" accept="image/*">
-        </div>
-    {% endif %}
-</div>
-
-                    <button type="button" class="btn btn-small" onclick="agregarActor()">+ Agregar otro actor</button>
-                    <div class="form-help">Puedes subir una imagen o dejarla vacía si no tienes una. Máximo 16MB por archivo.</div>
+<div class="form-group">
+    <label>Elenco</label>
+    <div id="elenco-container">
+        {% if obra.elenco %}
+            {% for actor in obra.elenco %}
+            <div class="elenco-item" style="border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; background-color: #f9f9f9;">
+                <div class="actor-input-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" name="elenco[]" 
+                           value="{% if actor is string %}{{ actor }}{% else %}{{ actor.nombre }}{% endif %}" 
+                           placeholder="Nombre del actor" required style="flex: 1;">
+                    <input type="file" name="foto_elenco_{{ loop.index0 }}" accept="image/*" 
+                           onchange="mostrarVistaPrevia(this, 'preview-actor-{{ loop.index0 }}')"
+                           id="foto-actor-{{ loop.index0 }}" style="flex: 1;">
+                    <button type="button" class="btn btn-danger btn-sm eliminar-actor" onclick="eliminarActor(this)" title="Eliminar actor">🗑️</button>
                 </div>
+                
+                <!-- Foto actual del actor (si existe) -->
+                {% if actor is not string and actor.foto %}
+                <div class="actor-current-photo" style="margin-bottom: 10px; text-align: center;">
+                    <p style="margin: 5px 0; font-size: 12px; color: #666;">Foto actual:</p>
+                    <img src="{{ actor.foto }}" alt="{{ actor.nombre if actor.nombre else actor }}" 
+                         style="width: 60px; height: 60px; border: 2px solid #ccc; border-radius: 50%; object-fit: cover; transition: all 0.3s ease;">
+                </div>
+                {% endif %}
+                
+                <!-- Vista previa de nueva foto -->
+                <div class="actor-preview-container" style="margin-top: 10px; text-align: center;">
+                    <img id="preview-actor-{{ loop.index0 }}" 
+                         style="display: none; width: 80px; height: 80px; border: 2px solid #28a745; border-radius: 50%; object-fit: cover; transition: all 0.3s ease;"
+                         alt="Vista previa nueva foto actor">
+                    <p id="preview-text-{{ loop.index0 }}" style="display: none; font-size: 12px; color: #28a745; margin-top: 5px;">
+                        Nueva foto seleccionada
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Si no hay elenco, mostrar uno por defecto -->
+            <div class="elenco-item" style="border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; background-color: #f9f9f9;">
+                <div class="actor-input-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" name="elenco[]" placeholder="Nombre del actor" required style="flex: 1;">
+                    <input type="file" name="foto_elenco_0" accept="image/*" 
+                           onchange="mostrarVistaPrevia(this, 'preview-actor-0')"
+                           id="foto-actor-0" style="flex: 1;">
+                    <button type="button" class="btn btn-danger btn-sm eliminar-actor" onclick="eliminarActor(this)" title="Eliminar actor">🗑️</button>
+                </div>
+                <div class="actor-preview-container" style="margin-top: 10px; text-align: center;">
+                    <img id="preview-actor-0" 
+                         style="display: none; width: 80px; height: 80px; border: 2px solid #ddd; border-radius: 50%; object-fit: cover; transition: all 0.3s ease;"
+                         alt="Vista previa foto actor">
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <button type="button" class="btn btn-secondary btn-sm" onclick="agregarActor()" style="margin-top: 10px;">
+        + Agregar Actor
+    </button>
+    <div class="form-help" style="margin-top: 5px;">
+        <small>Al editar: si no seleccionas nueva foto para un actor, se mantendrá la actual (si la tiene).</small>
+    </div>
+</div>
                 
                 <div class="form-actions">
                     <button type="submit" class="btn">Actualizar Obra</button>

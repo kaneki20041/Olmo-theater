@@ -49,6 +49,7 @@
         <a href="#inicio">INICIO</a>
         <a href="#nosotros">NOSOTROS</a>    
         <a href="#espectaculos">ESPECTÁCULOS</a>
+        <a href="#obras_historicas">Obras historicas</a>
         <a href="#servicios">SERVICIOS</a>
         <a href="#ubicanos">UBÍCANOS</a>
       </div>
@@ -122,6 +123,45 @@
   </div>
 </section>
 
+<section id="obras_historicas">
+  <h2 class="obras-historicas-title">OBRAS HISTÓRICAS</h2>
+  
+  <!-- Radio buttons para filtrar -->
+  <div class="filter-tabs">
+    <label class="filter-tab">
+      <input type="radio" name="obras-filter" value="trayectoria" checked>
+      <div class="radio-custom"></div>
+      <span class="tab-label">Trayectoria</span>
+    </label>
+    <label class="filter-tab">
+      <input type="radio" name="obras-filter" value="proyectos">
+      <div class="radio-custom"></div>
+      <span class="tab-label">Proyectos Históricos</span>
+    </label>
+    <!-- El botón de administrar se agregará automáticamente por JavaScript -->
+  </div>
+
+  <!-- Grid de obras -->
+  <div class="obras-grid" id="obrasHistoricasGrid">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Cargando obras...</p>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination-container" id="paginationContainer">
+    <button class="pagination-btn" id="prevPageBtn" disabled>
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <div class="pagination-info" id="paginationInfo">
+      Página 1 de 2
+    </div>
+    <button class="pagination-btn" id="nextPageBtn">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+</section>
 
 <section id="servicios">
     <div class="servicios-container">
@@ -168,8 +208,8 @@
         </p>
         <ul class="datos-contacto">
           <li>Av. Húsares de Junín "N"-27, Trujillo, Perú</li>
-          <li class="telefono">+51 912 345 678</li>
-          <li class="correo">contacto@teatrolmo.pe</li>
+          <li class="telefono">+51 947 919 832</li>
+          <li class="correo">olmoteatro@gmail.com</li>
         </ul>
       </article>
 

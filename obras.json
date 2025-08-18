@@ -3,45 +3,83 @@
     "obras": [
       {
         "activarDesde": "2025-01-01",
-        "imagen": "https://m.media-amazon.com/images/S/pv-target-images/081bc3ac8ff25eac502f0742aff3f9808a97be26052a33617403fddcfb3195e7.jpg",
-        "titulo": "aaaaaaaaaaa",
-        "descripcion": "aaaaaaaaaaaa",
+        "imagen": "/static/images/obras/Image20240716102751_ae0781a9.jpg",
+        "titulo": "Talleres Generales",
+        "descripcion": "111",
         "fechas": [
           {
-            "dia": "18",
-            "mes": "setiembre"
-          },
-          {
-            "dia": "20",
-            "mes": "setiembre"
-          }
-        ],
-        "elenco": [
-          {
-            "nombre": "Jose Diazz",
-            "foto": ""
-          }
-        ]
-      }
-    ]
-  },
-  "Junio": {
-    "obras": [
-      {
-        "activarDesde": "2025-01-01",
-        "imagen": "/static/images/obras/Theodore-alvin-y-las-ardillas-4_aafb3648.jpg",
-        "titulo": "obre estelar",
-        "descripcion": "pipipipi",
-        "fechas": [
-          {
-            "dia": "1",
+            "dia": "111",
             "mes": "enero"
           }
         ],
         "elenco": [
           {
-            "nombre": "uwu",
-            "foto": ""
+            "nombre": "Graysit Sarango",
+            "foto": "/static/images/elenco/elenco_d618d2ea.jpg"
+          }
+        ]
+      }
+    ]
+  },
+  "Febrero": {
+    "obras": [
+      {
+        "activarDesde": "2025-01-01",
+        "imagen": "/static/images/obras/herbal_54ca847b.jpg",
+        "titulo": "prueba 2",
+        "descripcion": "wwww",
+        "fechas": [
+          {
+            "dia": "17",
+            "mes": "mayo"
+          },
+          {
+            "dia": "24",
+            "mes": "mayo"
+          },
+          {
+            "dia": "31",
+            "mes": "mayo"
+          }
+        ],
+        "elenco": [
+          {
+            "nombre": "Jose Diazz",
+            "foto": "/static/images/elenco/elenco_ca4a0d47.png"
+          }
+        ]
+      }
+    ]
+  },
+  "Diciembre": {
+    "obras": [
+      {
+        "activarDesde": "2025-01-01",
+        "imagen": "/static/images/obras/desktop-wallpaper-scary-eyes-creepy-eyes_590bcc97.jpg",
+        "titulo": "aaaaaaaaaaa",
+        "descripcion": "aaaaaaa",
+        "fechas": [
+          {
+            "dia": "17",
+            "mes": "mayo"
+          },
+          {
+            "dia": "24",
+            "mes": "mayo"
+          },
+          {
+            "dia": "31",
+            "mes": "mayo"
+          }
+        ],
+        "elenco": [
+          {
+            "nombre": "Jose Diazz",
+            "foto": "/static/images/elenco/elenco_316b9aff.jpg"
+          },
+          {
+            "nombre": "Dina Boluarte",
+            "foto": "/static/images/elenco/elenco_43c80ad8.png"
           }
         ]
       }

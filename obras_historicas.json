@@ -1,0 +1,19 @@
+{
+  "trayectoria": [
+    {
+      "id": 2,
+      "title": "aaa",
+      "year": 2021,
+      "description": "AAAA",
+      "image": "/static/images/obras/d1004fe3ece74722aab56f4a14c8fd35.webp"
+    },
+    {
+      "id": 1,
+      "title": "Ilusión",
+      "year": 2018,
+      "description": "Inspirado en la emoción que mantiene nuestros sueños y nos impulsa a alcanzarlos, Ilusión narra las peripecias que vive Max, un niño de 7 años...",
+      "image": "/static/images/obras/0ae7e5f282f04d0eb2abb51f0618390f.png"
+    }
+  ],
+  "proyectos": []
+}

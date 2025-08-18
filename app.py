@@ -5,11 +5,14 @@ import json
 import os
 from datetime import datetime
 import uuid
+import pandas as pd
 import secrets
 import re # Asegúrate de que 're' esté importado para 'valid_url'
 import logging # Importar el módulo logging
 from collections import OrderedDict
 from functools import wraps
+import math
+from PIL import Image
 
 # Carga las variables de entorno desde .flaskenv o .env
 load_dotenv()
@@ -26,13 +29,19 @@ print("PASSWORD:", os.environ.get("ADMIN_PASSWORD"))
 
 # Configuración para subida de archivos
 UPLOAD_FOLDER = 'static/images/obras'
+UPLOAD_FOLDER_OBRAS = 'static/images/obras'
 UPLOAD_FOLDER_ELENCO = 'static/images/elenco'
 UPLOAD_FOLDER_SERVICIOS = 'static/images/servicios'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+MAX_FILE_SIZE = 16 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['UPLOAD_FOLDER_ELENCO'] = UPLOAD_FOLDER_ELENCO
 app.config['UPLOAD_FOLDER_SERVICIOS'] = UPLOAD_FOLDER_SERVICIOS
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB máximo
+
+# Variable global para almacenar clientes (en producción usa base de datos)
+clients_storage = []
+
 
 for folder in [UPLOAD_FOLDER, UPLOAD_FOLDER_ELENCO, UPLOAD_FOLDER_SERVICIOS]:
     os.makedirs(folder, exist_ok=True)
@@ -52,7 +61,7 @@ ORDEN_FILTROS = ['talleres-ninos', 'talleres-adultos', 'servicios-pre-funcion', 
 OBRAS_FILE = 'obras.json'
 SERVICIOS_FILE = 'servicios.json'
 DATA_FILE = 'teatro_faq.json'
-
+JSON_FILE = 'obras_historicas.json'
 # Las variables CATEGORIAS_SERVICIOS y NOMBRES_CATEGORIAS ya no son globales y estáticas
 # Ahora se generarán dinámicamente dentro de cargar_servicios()
 
@@ -124,7 +133,46 @@ def load_data():
         data = init_json_data()
         save_data(data)
         return data
+def get_default_data():
+    """Datos por defecto si no existe el archivo JSON"""
+    return {
+        "trayectoria": [
+            {
+                "id": 1,
+                "title": "Ilusión",
+                "year": 2018,
+                "description": "Inspirado en la emoción que mantiene nuestros sueños y nos impulsa a alcanzarlos, Ilusión narra las peripecias que vive Max, un niño de 7 años...",
+                "image": "/static/images/obras/ilusion.jpg"
+            },
+            {
+                "id": 2,
+                "title": "Bandurria",
+                "year": 2017,
+                "description": "Con Bandurria, La Tarumba volvió a poner al Perú en escena para celebrarlo. Una fusión de circo, fantasía del Perú y la magia del Circo en una creación...",
+                "image": "/static/images/obras/bandurria.jpg"
+            },
+            # Agregar más datos según tu JS original...
+        ],
+        "proyectos": [
+            {
+                "id": 19,
+                "title": "Teatro en las Escuelas",
+                "year": 2020,
+                "description": "Proyecto educativo que lleva el teatro a instituciones educativas de Trujillo, fomentando la creatividad en niños y jóvenes...",
+                "image": "/static/images/proyectos/teatro-escuelas.jpg"
+            },
+            # Agregar más datos según tu JS original...
+        ]
+    }
 
+def get_next_id(data):
+    """Obtener el siguiente ID disponible"""
+    max_id = 0
+    for categoria in data.values():
+        for obra in categoria:
+            if obra['id'] > max_id:
+                max_id = obra['id']
+    return max_id + 1
 def save_data(data):
     """Guardar datos en el archivo JSON"""
     with open(DATA_FILE, 'w', encoding='utf-8') as f:
@@ -136,7 +184,58 @@ def get_categoria_by_id(categoria_id, data):
         if categoria['id'] == categoria_id:
             return categoria
     return None
+def load_obras_data():
+    """Cargar datos del archivo JSON"""
+    if os.path.exists(JSON_FILE):
+        try:
+            with open(JSON_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError):
+            return get_default_data()
+    else:
+        return get_default_data()
 
+def save_uploaded_file(file):
+    """Guarda el archivo subido y devuelve la ruta relativa"""
+    if file and allowed_file(file.filename):
+        # Crear directorio si no existe
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+        
+        # Generar nombre único para el archivo
+        filename = secure_filename(file.filename)
+        file_extension = filename.rsplit('.', 1)[1].lower()
+        unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
+        
+        file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+        
+        try:
+            # Guardar archivo
+            file.save(file_path)
+            
+            # Optimizar imagen
+            optimize_image(file_path)
+            
+            # Retornar ruta relativa para usar en templates
+            return f"/static/images/obras/{unique_filename}"
+            
+        except Exception as e:
+            print(f"Error guardando archivo: {e}")
+            # Limpiar archivo si hubo error
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            return None
+    
+    return None
+
+def save_obras_data(data):
+    """Guardar datos en el archivo JSON"""
+    try:
+        with open(JSON_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception as e:
+        print(f"Error saving data: {e}")
+        return False
 def get_pregunta_by_id(pregunta_id, data):
     """Obtener pregunta por ID"""
     for pregunta in data['preguntas']:
@@ -161,6 +260,25 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def optimize_image(image_path, max_width=1200, max_height=800, quality=85):
+    """Optimiza la imagen redimensionándola y comprimiéndola"""
+    try:
+        with Image.open(image_path) as img:
+            # Convertir a RGB si es necesario
+            if img.mode in ('RGBA', 'LA', 'P'):
+                img = img.convert('RGB')
+            
+            # Redimensionar manteniendo proporción
+            img.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
+            
+            # Guardar con compresión
+            img.save(image_path, 'JPEG', quality=quality, optimize=True)
+            
+        return True
+    except Exception as e:
+        print(f"Error optimizando imagen: {e}")
+        return False
+    
 def cargar_obras():
     """Carga las obras desde el archivo JSON"""
     if os.path.exists(OBRAS_FILE):
@@ -341,20 +459,298 @@ def procesar_fotos_elenco(elenco_nombres, archivos_fotos):
 
 @app.route('/')
 def home():
+    # Cargar datos de obras (dos fuentes distintas)
     obras = cargar_obras()
-    servicios_data, categorias_dinamicas, nombres_categorias_dinamicos = cargar_servicios() 
+    obras_data = load_obras_data()
+
+    # Cargar y ordenar servicios
+    servicios_data, categorias_dinamicas, nombres_categorias_dinamicos = cargar_servicios()
     servicios_ordenados = ordenar_servicios(servicios_data)
-
     categorias_ordenadas = list(servicios_ordenados.keys())
-
     servicios_lista_ordenada = list(servicios_ordenados.items())
 
-    return render_template('index.html', 
-        obras_data=json.dumps(obras), 
+    # Renderizar la plantilla con todos los datos necesarios
+    return render_template(
+        'index.html',
+        obras_data=json.dumps(obras),               # Datos de cargar_obras()
+        obras_data1=json.dumps(obras_data),         # Datos de load_obras_data()
         servicios_data=json.dumps(servicios_lista_ordenada),
-        categorias=categorias_ordenadas,  # <- Usar categorías ordenadas aquí
-        nombres_categorias=nombres_categorias_dinamicos)
+        categorias=categorias_ordenadas,
+        nombres_categorias=nombres_categorias_dinamicos
+    )
 
+
+@app.route('/olmo-mesagges')
+@login_required
+def whatsapp_sender():
+    """Página principal con el enviador de WhatsApp"""
+    return render_template('whatsapp_sender.html')
+
+@app.route('/api/clients', methods=['GET'])
+@login_required
+def get_clients():
+    """Obtener lista de clientes"""
+    return jsonify({
+        'success': True,
+        'clients': clients_storage,
+        'total': len(clients_storage)
+    })
+
+@app.route('/api/clients', methods=['POST'])
+@login_required
+def add_client():
+    """Agregar cliente individual"""
+    try:
+        data = request.get_json()
+        name = data.get('name', '').strip()
+        phone = data.get('phone', '').strip()
+        
+        if not name or not phone:
+            return jsonify({
+                'success': False,
+                'message': 'Nombre y teléfono son requeridos'
+            }), 400
+        
+        # Formatear teléfono
+        formatted_phone = format_phone_number(phone)
+        
+        # Verificar duplicados
+        if any(client['phone'] == formatted_phone for client in clients_storage):
+            return jsonify({
+                'success': False,
+                'message': 'Este número ya existe en la lista'
+            }), 400
+        
+        # Agregar cliente
+        client = {
+            'id': len(clients_storage) + 1,
+            'name': name,
+            'phone': formatted_phone
+        }
+        
+        clients_storage.append(client)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Cliente agregado correctamente',
+            'client': client
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error al agregar cliente: {str(e)}'
+        }), 500
+
+@app.route('/api/clients/<int:client_id>', methods=['DELETE'])
+@login_required
+def delete_client(client_id):
+    """Eliminar cliente por ID"""
+    global clients_storage
+    
+    clients_storage = [c for c in clients_storage if c['id'] != client_id]
+    
+    return jsonify({
+        'success': True,
+        'message': 'Cliente eliminado correctamente'
+    })
+
+@app.route('/api/clients/clear', methods=['DELETE'])
+@login_required
+def clear_clients():
+    """Limpiar todos los clientes"""
+    global clients_storage
+    clients_storage = []
+    
+    return jsonify({
+        'success': True,
+        'message': 'Todos los clientes han sido eliminados'
+    })
+
+@app.route('/api/upload-excel', methods=['POST'])
+@login_required
+def upload_excel():
+    """Subir y procesar archivo Excel"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({
+                'success': False,
+                'message': 'No se seleccionó ningún archivo'
+            }), 400
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({
+                'success': False,
+                'message': 'No se seleccionó ningún archivo'
+            }), 400
+        
+        if not file.filename.lower().endswith(('.xlsx', '.xls')):
+            return jsonify({
+                'success': False,
+                'message': 'Solo se permiten archivos Excel (.xlsx, .xls)'
+            }), 400
+        
+        # Leer Excel
+        df = pd.read_excel(file)
+        
+        # Procesar datos
+        imported, skipped = process_excel_data(df)
+        
+        message = f'Se importaron {imported} clientes correctamente'
+        if skipped > 0:
+            message += f'. {skipped} registros fueron omitidos'
+        
+        return jsonify({
+            'success': True,
+            'message': message,
+            'imported': imported,
+            'skipped': skipped,
+            'total_clients': len(clients_storage)
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error al procesar archivo: {str(e)}'
+        }), 500
+
+@app.route('/api/export-excel', methods=['GET'])
+@login_required
+def export_excel():
+    """Exportar clientes a Excel"""
+    try:
+        if not clients_storage:
+            return jsonify({
+                'success': False,
+                'message': 'No hay clientes para exportar'
+            }), 400
+        
+        # Crear DataFrame
+        df = pd.DataFrame(clients_storage)
+        
+        # Guardar archivo
+        filename = 'clientes_whatsapp.xlsx'
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        df.to_excel(filepath, index=False)
+        
+        return send_from_directory(
+            app.config['UPLOAD_FOLDER'],
+            filename,
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error al exportar: {str(e)}'
+        }), 500
+
+@app.route('/api/generate-whatsapp-urls', methods=['POST'])
+@login_required
+def generate_whatsapp_urls():
+    """Generar URLs de WhatsApp para todos los clientes"""
+    try:
+        data = request.get_json()
+        message_template = data.get('message', '').strip()
+        
+        if not message_template:
+            return jsonify({
+                'success': False,
+                'message': 'El mensaje es requerido'
+            }), 400
+        
+        if not clients_storage:
+            return jsonify({
+                'success': False,
+                'message': 'No hay clientes para enviar mensajes'
+            }), 400
+        
+        # Generar URLs
+        whatsapp_urls = []
+        for client in clients_storage:
+            personalized_message = message_template.replace('{nombre}', client['name'])
+            clean_phone = ''.join(filter(str.isdigit, client['phone']))
+            
+            url = f"https://wa.me/{clean_phone}?text={personalized_message}"
+            
+            whatsapp_urls.append({
+                'client': client,
+                'url': url,
+                'message': personalized_message
+            })
+        
+        return jsonify({
+            'success': True,
+            'urls': whatsapp_urls,
+            'total': len(whatsapp_urls)
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error al generar URLs: {str(e)}'
+        }), 500
+
+def format_phone_number(phone):
+    """Formatear número de teléfono"""
+    # Remover caracteres no numéricos excepto +
+    cleaned = ''.join(char for char in phone if char.isdigit() or char == '+')
+    
+    # Agregar código de país si no existe
+    if not cleaned.startswith('+'):
+        if cleaned.startswith('51'):
+            cleaned = '+' + cleaned
+        elif cleaned.startswith('9'):
+            cleaned = '+51' + cleaned
+        else:
+            cleaned = '+51' + cleaned
+    
+    return cleaned
+
+def process_excel_data(df):
+    """Procesar datos del Excel"""
+    imported = 0
+    skipped = 0
+    
+    # Buscar columnas relevantes
+    name_columns = [col for col in df.columns if any(name in col.lower() for name in ['nombre', 'name', 'cliente', 'client'])]
+    phone_columns = [col for col in df.columns if any(phone in col.lower() for phone in ['telefono', 'phone', 'celular', 'movil', 'whatsapp', 'tel'])]
+    
+    name_col = name_columns[0] if name_columns else None
+    phone_col = phone_columns[0] if phone_columns else None
+    
+    if not name_col or not phone_col:
+        raise ValueError("No se encontraron columnas de nombre o teléfono válidas")
+    
+    for index, row in df.iterrows():
+        try:
+            name = str(row[name_col]).strip() if pd.notna(row[name_col]) else ''
+            phone = str(row[phone_col]).strip() if pd.notna(row[phone_col]) else ''
+            
+            if name and phone and len(phone.replace('+', '').replace(' ', '')) >= 10:
+                formatted_phone = format_phone_number(phone)
+                
+                # Evitar duplicados
+                if not any(client['phone'] == formatted_phone for client in clients_storage):
+                    client = {
+                        'id': len(clients_storage) + 1,
+                        'name': name,
+                        'phone': formatted_phone
+                    }
+                    clients_storage.append(client)
+                    imported += 1
+                else:
+                    skipped += 1
+            else:
+                skipped += 1
+                
+        except Exception:
+            skipped += 1
+    
+    return imported, skipped
 
 @app.route('/contactanos')
 def contactanos():
@@ -397,12 +793,14 @@ def contactanos():
                          categorias=categorias_activas)
 
 @app.route('/api/obras')
+@login_required
 def api_obras():
     """API para obtener las obras actuales"""
     obras = cargar_obras()
     return jsonify(obras)
 
 @app.route('/api/servicios')
+@login_required
 def api_servicios():
     """API para obtener los servicios actuales"""
     servicios_data, _, _ = cargar_servicios() # Solo necesitamos los datos de servicios aquí
@@ -447,7 +845,11 @@ def editar_obra(mes, obra_index):
     obras = cargar_obras()
     if mes in obras and obra_index < len(obras[mes]['obras']):
         obra = obras[mes]['obras'][obra_index]
-        return render_template('editar_obra.html', mes=mes, obra=obra, obra_index=obra_index)
+        meses_disponibles = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ]
+        return render_template('editar_obra.html', mes=mes, obra=obra, obra_index=obra_index, meses_disponibles=meses_disponibles)
     else:
         flash('Obra no encontrada', 'error')
         return redirect(url_for('admin_obras'))
@@ -470,11 +872,22 @@ def guardar_obra():
     try:
         fecha_activar = datetime.strptime(activar_desde, "%Y-%m-%d")
     except ValueError:
-        flash('Formato de fecha "activarDesde" inválido. Debe serYYYY-MM-DD.', 'error')
+        flash('Formato de fecha "activarDesde" inválido. Debe ser YYYY-MM-DD.', 'error')
         return redirect(request.referrer)
     
+    obra_index = request.form.get('obra_index')
+    is_editing = obra_index is not None and obra_index.isdigit()
+    
+    # Manejar la imagen
     imagen_url = None
     
+    # Si estamos editando, obtener la imagen actual como fallback
+    if is_editing:
+        obra_index_int = int(obra_index)
+        if mes in obras and obra_index_int < len(obras[mes]['obras']):
+            imagen_url = obras[mes]['obras'][obra_index_int]['imagen']  # Imagen actual como fallback
+    
+    # Verificar si se subió una nueva imagen
     if 'imagen_archivo' in request.files:
         file = request.files['imagen_archivo']
         print(f"Archivo de imagen recibido: {file.filename}")
@@ -485,15 +898,27 @@ def guardar_obra():
             unique_filename = f"{name}_{uuid.uuid4().hex[:8]}{ext}"
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
             file.save(file_path)
+            
+            # Si estamos editando y había una imagen anterior, eliminarla
+            if is_editing and imagen_url and imagen_url.startswith('/static/images/obras/'):
+                try:
+                    os.remove(imagen_url[1:])  # Quitar el '/' inicial
+                    print(f"Imagen anterior eliminada: {imagen_url}")
+                except Exception as e:
+                    app.logger.warning(f"No se pudo eliminar la imagen anterior: {e}")
+            
+            # Actualizar con la nueva imagen
             imagen_url = f"/static/images/obras/{unique_filename}"
     
+    # Validar que tengamos una imagen
     if not imagen_url:
-        imagen_url = request.form.get('imagen_url', '').strip()
-    
-    if not imagen_url:
-        flash('Debes proporcionar una imagen (archivo o URL)', 'error')
+        if is_editing:
+            flash('Error al procesar la imagen', 'error')
+        else:
+            flash('Debes proporcionar una imagen para la obra', 'error')
         return redirect(request.referrer)
     
+    # Procesar fechas
     fechas_input = request.form.get('fechas', '').strip()
     fechas = []
     for fecha_str in fechas_input.split(','):
@@ -505,9 +930,11 @@ def guardar_obra():
             else:
                 fechas.append({"dia": partes[0], "mes": mes.lower()})
     
+    # Procesar elenco
     elenco_nombres = [nombre.strip() for nombre in request.form.getlist('elenco[]') if nombre.strip()]
     elenco = procesar_fotos_elenco(elenco_nombres, request.files)
     
+    # Crear objeto obra
     nueva_obra = {
         "activarDesde": activar_desde,
         "imagen": imagen_url,
@@ -517,26 +944,21 @@ def guardar_obra():
         "elenco": elenco
     }
     
+    # Asegurar que el mes existe
     if mes not in obras:
         obras[mes] = {"obras": []}
     
-    obra_index = request.form.get('obra_index')
-    
-    if obra_index is not None and obra_index.isdigit():
-        obra_index = int(obra_index)
-        if obra_index < 0 or obra_index >= len(obras[mes]['obras']):
+    # Guardar o actualizar la obra
+    if is_editing:
+        obra_index_int = int(obra_index)
+        if obra_index_int < 0 or obra_index_int >= len(obras[mes]['obras']):
             flash('Índice de obra inválido', 'error')
             return redirect(request.referrer)
         
-        obra_anterior = obras[mes]['obras'][obra_index]
+        # Al editar, si no se cambió la imagen, mantener las fotos del elenco anterior
+        obra_anterior = obras[mes]['obras'][obra_index_int]
         
-        if 'imagen_archivo' in request.files and request.files['imagen_archivo'].filename != '':
-            if obra_anterior['imagen'].startswith('/static/images/obras/'):
-                try:
-                    os.remove(obra_anterior['imagen'][1:])
-                except Exception as e:
-                    app.logger.warning(f"No se pudo eliminar la imagen anterior: {e}")
-        
+        # Solo eliminar fotos del elenco si se está actualizando con nuevas fotos
         if 'elenco' in obra_anterior:
             for actor in obra_anterior['elenco']:
                 if isinstance(actor, dict) and 'foto' in actor:
@@ -546,12 +968,14 @@ def guardar_obra():
                         except Exception as e:
                             app.logger.warning(f"No se pudo eliminar foto del elenco: {e}")
         
-        obras[mes]['obras'][obra_index] = nueva_obra
+        obras[mes]['obras'][obra_index_int] = nueva_obra
         flash(f'Obra "{titulo}" actualizada exitosamente', 'success')
     else:
+        # Nueva obra
         obras[mes]['obras'].append(nueva_obra)
         flash(f'Obra "{titulo}" creada exitosamente en {mes}', 'success')
 
+    # Ordenar y guardar
     obras = ordenar_obras_por_mes(obras)
     guardar_obras(obras)
     return redirect(url_for('admin_obras'))
@@ -565,21 +989,26 @@ def eliminar_obra(mes, obra_index):
     if mes in obras and obra_index < len(obras[mes]['obras']):
         obra_eliminada = obras[mes]['obras'].pop(obra_index)
         
+        # Eliminar imagen de la obra si es un archivo local
         if obra_eliminada['imagen'].startswith('/static/images/obras/'):
             try:
                 os.remove(obra_eliminada['imagen'][1:])
-            except Exception as e: # Captura la excepción para logging
+                print(f"Imagen eliminada: {obra_eliminada['imagen']}")
+            except Exception as e:
                 app.logger.warning(f"No se pudo eliminar la imagen: {e}")
         
+        # Eliminar fotos del elenco si son archivos locales
         if 'elenco' in obra_eliminada and isinstance(obra_eliminada['elenco'], list):
             for actor in obra_eliminada['elenco']:
                 if isinstance(actor, dict) and 'foto' in actor:
                     if actor['foto'].startswith('/static/images/elenco/'):
                         try:
                             os.remove(actor['foto'][1:])
-                        except Exception as e: # Captura la excepción para logging
+                            print(f"Foto del elenco eliminada: {actor['foto']}")
+                        except Exception as e:
                             app.logger.warning(f"No se pudo eliminar foto del elenco: {e}")
         
+        # Si no quedan más obras en el mes, eliminar el mes completo
         if len(obras[mes]['obras']) == 0:
             del obras[mes]
             flash(f'Obra "{obra_eliminada["titulo"]}" eliminada y mes {mes} removido', 'success')
@@ -918,6 +1347,7 @@ def login():
     return render_template('login.html')
 
 @app.route('/admin/consultas')
+@login_required
 def admin_consultas():
     """Vista principal de administración de consultas frecuentes"""
     data = load_data()
@@ -951,6 +1381,7 @@ def admin_consultas():
                          categorias=categorias)
 
 @app.route('/admin/consultas/nueva', methods=['GET', 'POST'])
+@login_required
 def nueva_consulta():
     """Crear nueva consulta frecuente"""
     data = load_data()
@@ -987,6 +1418,7 @@ def nueva_consulta():
     return render_template('admin_consultas.html', categorias=categorias, modo='crear')
 
 @app.route('/admin/consultas/editar/<int:id>', methods=['GET', 'POST'])
+@login_required
 def editar_consulta(id):
     """Editar consulta frecuente existente"""
     data = load_data()
@@ -1028,6 +1460,7 @@ def editar_consulta(id):
                          modo='editar')
 
 @app.route('/admin/consultas/eliminar/<int:id>', methods=['POST'])
+@login_required
 def eliminar_consulta(id):
     """Eliminar consulta frecuente"""
     data = load_data()
@@ -1040,6 +1473,7 @@ def eliminar_consulta(id):
     return redirect(url_for('admin_consultas'))
 
 @app.route('/admin/consultas/toggle/<int:id>', methods=['POST'])
+@login_required
 def toggle_consulta(id):
     """Activar/Desactivar consulta frecuente"""
     data = load_data()
@@ -1055,6 +1489,7 @@ def toggle_consulta(id):
 # RUTAS PARA GESTIÓN DE CATEGORÍAS
 
 @app.route('/admin/categorias/nueva', methods=['POST'])
+@login_required
 def nueva_categoria():
     """Crear nueva categoría"""
     data = load_data()
@@ -1088,7 +1523,251 @@ def nueva_categoria():
     flash('Categoría creada exitosamente', 'success')
     return redirect(url_for('admin_consultas'))
 
+# Rutas CRUD para administración
+@app.route('/admin_obras_historicas')
+@login_required
+def admin_obras_historicas():
+    """Panel de administración de obras históricas"""
+    obras_data = load_obras_data()
+    
+    # Calcular estadísticas para mostrar
+    total_trayectoria = len(obras_data.get('trayectoria', []))
+    total_proyectos = len(obras_data.get('proyectos', []))
+    
+    # Calcular páginas
+    items_per_page = 9
+    paginas_trayectoria = math.ceil(total_trayectoria / items_per_page)
+    paginas_proyectos = math.ceil(total_proyectos / items_per_page)
+    
+    stats = {
+        'total_trayectoria': total_trayectoria,
+        'total_proyectos': total_proyectos,
+        'paginas_trayectoria': paginas_trayectoria,
+        'paginas_proyectos': paginas_proyectos
+    }
+    
+    return render_template('admin_obras_historicas.html', 
+                         obras_data=obras_data, 
+                         stats=stats)
+
+@app.route('/obras_historicas/nueva', methods=['GET', 'POST'])
+@login_required
+def nueva_obra_historica():
+    """Crear nueva obra"""
+    if request.method == 'POST':
+        obras_data = load_obras_data()
+        
+        # Obtener datos del formulario
+        categoria = request.form.get('categoria')
+        title = request.form.get('title')
+        year_str = request.form.get('year')
+        description = request.form.get('description')
+        
+        # Validar año
+        try:
+            year = int(year_str) if year_str else None
+        except ValueError:
+            year = None
+        
+        # Validaciones básicas
+        if not all([categoria, title, year, description]):
+            flash('Todos los campos son obligatorios', 'error')
+            return render_template('nueva_obra_historica.html')
+        
+        if categoria not in ['trayectoria', 'proyectos']:
+            flash('Categoría no válida', 'error')
+            return render_template('nueva_obra_historica.html')
+        
+        # Procesar imagen
+        image_path = None
+        if 'image' in request.files:
+            file = request.files['image']
+            if file.filename != '':
+                # Verificar tamaño del archivo
+                if request.content_length > MAX_FILE_SIZE:
+                    flash('El archivo es demasiado grande. Máximo 16MB permitido.', 'error')
+                    return render_template('nueva_obra_historica.html')
+                
+                image_path = save_uploaded_file(file)
+                if not image_path:
+                    flash('Error al procesar la imagen. Verifica el formato (PNG, JPG, JPEG, GIF, WEBP).', 'error')
+                    return render_template('nueva_obra_historica.html')
+        
+        if not image_path:
+            flash('Debe seleccionar una imagen', 'error')
+            return render_template('nueva_obra_historica.html')
+        
+        # Crear nueva obra
+        nueva_obra = {
+            'id': get_next_id(obras_data),
+            'title': title,
+            'year': year,
+            'description': description,
+            'image': image_path
+        }
+        
+        # Agregar a la categoría correspondiente
+        if categoria not in obras_data:
+            obras_data[categoria] = []
+        
+        obras_data[categoria].append(nueva_obra)
+        
+        # Guardar datos
+        if save_obras_data(obras_data):
+            flash(f'Obra "{title}" agregada exitosamente a {categoria}', 'success')
+            return redirect(url_for('admin_obras_historicas'))
+        else:
+            flash('Error al guardar la obra', 'error')
+    
+    return render_template('nueva_obra_historica.html')
+
+@app.route('/obras_historicas/editar/<int:obra_id>', methods=['GET', 'POST'])
+@login_required
+def editar_obra_historica(obra_id):
+    """Editar obra existente"""
+    obras_data = load_obras_data()
+    
+    # Buscar la obra
+    obra = None
+    categoria_actual = None
+    
+    for cat_name, obras in obras_data.items():
+        for o in obras:
+            if o['id'] == obra_id:
+                obra = o
+                categoria_actual = cat_name
+                break
+        if obra:
+            break
+    
+    if not obra:
+        flash('Obra no encontrada', 'error')
+        return redirect(url_for('admin_obras_historicas'))
+    
+    if request.method == 'POST':
+        # Obtener datos del formulario
+        nueva_categoria = request.form.get('categoria')
+        title = request.form.get('title')
+        year_str = request.form.get('year')
+        description = request.form.get('description')
+        
+        # Validar año
+        try:
+            year = int(year_str) if year_str else None
+        except ValueError:
+            year = None
+        
+        # Validaciones
+        if not all([nueva_categoria, title, year, description]):
+            flash('Todos los campos son obligatorios', 'error')
+            return render_template('editar_obra_historica.html', obra=obra, categoria_actual=categoria_actual)
+        
+        if nueva_categoria not in ['trayectoria', 'proyectos']:
+            flash('Categoría no válida', 'error')
+            return render_template('editar_obra_historica.html', obra=obra, categoria_actual=categoria_actual)
+        
+        # Procesar nueva imagen si se subió
+        image_path = obra['image']  # Mantener imagen actual por defecto
+        
+        if 'image' in request.files:
+            file = request.files['image']
+            if file.filename != '':
+                # Verificar tamaño del archivo
+                if request.content_length > MAX_FILE_SIZE:
+                    flash('El archivo es demasiado grande. Máximo 16MB permitido.', 'error')
+                    return render_template('editar_obra_historica.html', obra=obra, categoria_actual=categoria_actual)
+                
+                new_image_path = save_uploaded_file(file)
+                if new_image_path:
+                    # Eliminar imagen anterior si existe y no es la imagen por defecto
+                    old_image_path = obra['image']
+                    if old_image_path and old_image_path.startswith('/static/images/obras/'):
+                        old_file_path = old_image_path[1:]  # Remover '/' inicial
+                        if os.path.exists(old_file_path):
+                            try:
+                                os.remove(old_file_path)
+                            except Exception as e:
+                                print(f"Error eliminando imagen anterior: {e}")
+                    
+                    image_path = new_image_path
+                else:
+                    flash('Error al procesar la nueva imagen. Se mantuvo la imagen actual.', 'error')
+        
+        # Si cambió de categoría, mover la obra
+        if nueva_categoria != categoria_actual:
+            # Remover de categoría actual
+            obras_data[categoria_actual] = [o for o in obras_data[categoria_actual] if o['id'] != obra_id]
+            
+            # Agregar a nueva categoría
+            if nueva_categoria not in obras_data:
+                obras_data[nueva_categoria] = []
+        
+        # Actualizar datos de la obra
+        obra_actualizada = {
+            'id': obra_id,
+            'title': title,
+            'year': year,
+            'description': description,
+            'image': image_path
+        }
+        
+        # Encontrar y actualizar la obra en la nueva categoría
+        if nueva_categoria != categoria_actual:
+            obras_data[nueva_categoria].append(obra_actualizada)
+        else:
+            for i, o in enumerate(obras_data[categoria_actual]):
+                if o['id'] == obra_id:
+                    obras_data[categoria_actual][i] = obra_actualizada
+                    break
+        
+        # Guardar datos
+        if save_obras_data(obras_data):
+            flash(f'Obra "{title}" actualizada exitosamente', 'success')
+            return redirect(url_for('admin_obras_historicas'))
+        else:
+            flash('Error al actualizar la obra', 'error')
+    
+    return render_template('editar_obra_historica.html', obra=obra, categoria_actual=categoria_actual)
+
+@app.route('/obras_historicas/eliminar/<int:obra_id>', methods=['POST'])
+@login_required
+def eliminar_obra_historica(obra_id):
+    """Eliminar obra"""
+    obras_data = load_obras_data()
+    
+    # Buscar y eliminar la obra
+    obra_eliminada = False
+    obra_title = ""
+    
+    for cat_name, obras in obras_data.items():
+        for i, obra in enumerate(obras):
+            if obra['id'] == obra_id:
+                obra_title = obra['title']
+                del obras_data[cat_name][i]
+                obra_eliminada = True
+                break
+        if obra_eliminada:
+            break
+    
+    if obra_eliminada:
+        if save_obras_data(obras_data):
+            flash(f'Obra "{obra_title}" eliminada exitosamente', 'success')
+        else:
+            flash('Error al eliminar la obra', 'error')
+    else:
+        flash('Obra no encontrada', 'error')
+    
+    return redirect(url_for('admin_obras_historicas'))
+
+# API endpoint para obtener datos (para tu JavaScript)
+@app.route('/api/obras_historicas')
+@login_required
+def api_obras_historicas():
+    """API para obtener datos de obras históricas"""
+    obras_data = load_obras_data()
+    return jsonify(obras_data)
 # Logout
+
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)

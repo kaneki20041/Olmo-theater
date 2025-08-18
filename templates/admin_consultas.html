@@ -3,19 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrar Consultas Frecuentes - Teatro</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styless.css') }}">
+    <title>Administrar Consultas Frecuentes - Teatro Olmo</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* --- Layout general --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #050a24;
+            color: white; 
+            min-height: 100vh;
+        }
+
+        body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(white, rgba(255, 255, 255, 0.2) 2px, transparent 2px),
+            radial-gradient(white, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+            radial-gradient(white, rgba(255, 255, 255, 0.1) 2px, transparent 2px);
+        background-size: 550px 550px, 350px 350px, 250px 250px;
+        background-position: 0 0, 40px 60px, 130px 270px;
+        z-index: -1; 
+        pointer-events: none; 
+        }
+
         .admin-layout {
             display: flex;
             min-height: 100vh;
         }
 
-        /* --- Barra lateral --- */
+        /* Barra lateral */
         .sidebar {
-            width: 250px;
+            width: 280px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
@@ -35,6 +63,12 @@
         .sidebar-header h2 {
             font-size: 24px;
             font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 14px;
+            opacity: 0.9;
         }
 
         .sidebar-menu {
@@ -46,8 +80,8 @@
             padding: 15px 25px;
             color: #333;
             text-decoration: none;
-            border-left: 4px solid transparent;
             transition: all 0.3s ease;
+            border-left: 4px solid transparent;
         }
 
         .menu-item:hover {
@@ -61,6 +95,12 @@
             border-left-color: #ff6b35;
             color: #ff6b35;
             font-weight: bold;
+        }
+
+        .menu-item i {
+            width: 20px;
+            margin-right: 15px;
+            text-align: center;
         }
 
         .menu-divider {
@@ -79,119 +119,208 @@
             border-left-color: #dc3545;
         }
 
-        /* --- Contenido principal --- */
+        /* Contenido principal */
         .main-content {
-            margin-left: 225px; /* Igual al ancho de sidebar */
+            margin-left: 280px;
             flex: 1;
-            padding: 40px 30px 10px;
+            padding: 30px;
+            min-height: 100vh;
         }
 
         .admin-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
-        /* --- Encabezado --- */
+        /* Encabezado */
         .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
         }
 
         .admin-title {
-            color: #8B4513;
-            font-size: 2.5rem;
-            margin: 0;
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 10px;
         }
 
-        .back-btn {
-            background: #6c757d;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background 0.3s;
+        .admin-subtitle {
+            color: #666;
+            font-size: 16px;
         }
 
-        .back-btn:hover {
-            background: #545b62;
-        }
-
-        /* --- Botones --- */
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
+        /* Botones */
         .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
             display: inline-block;
-            font-weight: bold;
-            transition: all 0.3s;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            margin: 5px;
         }
 
         .btn-primary {
-            background: #8B4513;
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: #7a3e11;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
         }
 
         .btn-success {
-            background: #28a745;
+            background: linear-gradient(135deg, #28a745, #20c997);
             color: white;
         }
 
         .btn-success-category {
-            background: #28a745;
+            background: linear-gradient(135deg, #28a745, #20c997);
             color: white;
-            padding: 8px 16px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 10px 20px;
+            border-radius: 25px;
             white-space: nowrap;
-            margin-top: 20px;
         }
 
         .btn-warning {
-            background: #ffc107;
-            color: #212529;
-        }
-
-        .btn-danger {
-            background: #dc3545;
+            background: linear-gradient(135deg, #f7931e, #ffd200);
             color: white;
         }
 
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 0.875rem;
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
         }
 
-        /* --- Tablas --- */
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        /* Alertas */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: rgba(220, 53, 69, 0.1);
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-info {
+            background: rgba(23, 162, 184, 0.1);
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        /* Formularios */
+        .category-form, .form-container {
+            background: rgba(248, 249, 250, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-form h3, .form-container h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Categoría form responsive */
+        .category-form-flex {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .category-form-flex .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        /* Botones de acción */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        /* Tablas */
         .table-container {
             overflow-x: auto;
+        }
+
+        .table-container h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding: 20px 20px 0;
+            font-size: 24px;
         }
 
         .admin-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 30px;
         }
 
         .admin-table th,
@@ -222,69 +351,11 @@
             font-weight: bold;
         }
 
-        /* --- Formularios --- */
-        .form-container {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: flex;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #8B4513;
-            box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
-        }
-
-        textarea.form-control {
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* --- Alertas --- */
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
+        /* Responsive */
         @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
             .sidebar {
                 width: 250px;
                 transform: translateX(-100%);
@@ -299,209 +370,258 @@
                 margin-left: 0;
                 padding: 20px 15px;
             }
+
+            .category-form-flex {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .category-form-flex .form-group {
+                margin-bottom: 15px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .admin-table th,
+            .admin-table td {
+                padding: 10px 8px;
+                font-size: 14px;
+            }
+
+            .question-text, .answer-text {
+                max-width: 150px;
+            }
         }
     </style>
 </head>
 <body>
-<div class="admin-layout">
-    <!-- Barra lateral -->
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <h2><i class="fas fa-theater-masks"></i> Teatro Olmo</h2>
-            <p>Panel de Administración</p>
-        </div>
-        <div class="sidebar-menu">
-            <a href="{{ url_for('admin_servicios') }}" class="menu-item">
-                <i class="fas fa-cogs"></i> Servicios
-            </a>
-            <a href="{{ url_for('admin_obras') }}" class="menu-item">
-                <i class="fas fa-theater-masks"></i> Obras
-            </a>
-            <a href="{{ url_for('admin_consultas') }}" class="menu-item active">
-                <i class="fas fa-question-circle"></i> Consultas Frecuentes
-            </a>
-            <div class="menu-divider"></div>
-            <a href="{{ url_for('home') }}" class="menu-item">
-                <i class="fas fa-home"></i> Ver Sitio Web
-            </a>
-            <a href="{{ url_for('logout') }}" class="menu-item logout-item">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-            </a>
-        </div>
-    </nav>
-
-    <div class="main-content">
-    <div class="admin-container">
-        <div class="admin-header">
-            <h1 class="admin-title">Administrar Consultas Frecuentes</h1>
-            <a href="{{ url_for('home') }}" class="back-btn">← Volver al inicio</a>
-        </div>
-
-        <!-- Mensajes Flash -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <!-- Formulario para nueva categoría -->
-        {% if modo not in ['crear', 'editar'] %}
-        <div class="category-form">
-            <h3>Agregar Nueva Categoría</h3>
-            <form method="POST" action="{{ url_for('nueva_categoria') }}">
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <div class="form-group" style="flex: auto; margin-bottom: 0;">
-                    <label for="nombre">Nombre de la categoría:</label>
-                <input type="text" id="nombre" name="nombre" 
-                    class="form-control" 
-                    style="width: 1000px;" required>
-                </div>
-                <button type="submit" class="btn btn-success-category">Crear Categoría</button>
+    <button id="menu-toggle" class="menu-toggle">&#9776;</button>
+    <div class="admin-layout">
+        <!-- Barra lateral -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-theater-masks"></i> Teatro Olmo</h2>
+                <p>Panel de Administración</p>
             </div>
-            </form>
-        </div>
-        {% endif %}
+            <div class="sidebar-menu">
+                <a href="{{ url_for('admin_servicios') }}" class="menu-item">
+                    <i class="fas fa-cogs"></i> Servicios
+                </a>
+                <a href="{{ url_for('admin_obras') }}" class="menu-item">
+                    <i class="fas fa-theater-masks"></i> Obras
+                </a>
+                <a href="{{ url_for('admin_obras_historicas') }}" class="menu-item">
+                    <i class="fas fa-solid fa-scroll"></i> Obras Historicas
+                </a>
+                <a href="{{ url_for('admin_consultas') }}" class="menu-item active">
+                    <i class="fas fa-question-circle"></i> Consultas Frecuentes
+                </a>
+                <a href="{{ url_for('whatsapp_sender') }}" class="menu-item">
+                    <i class="fa-brands fa-whatsapp"></i> Enviador de mensajes
+                </a>
+                <div class="menu-divider"></div>
+                <a href="{{ url_for('home') }}" class="menu-item">
+                    <i class="fas fa-home"></i> Ver Sitio Web
+                </a>
+                <a href="{{ url_for('logout') }}" class="menu-item logout-item">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
+        </nav>
 
-
-        <!-- Botones de acción -->
-        <div class="action-buttons">
-            <a href="{{ url_for('nueva_consulta') }}" class="btn btn-primary">
-                + Nueva Consulta
-            </a>
-            <a href="{{ url_for('contactanos') }}" class="btn btn-warning" target="_blank">
-                Ver Vista Pública
-            </a>
-        </div>
-
-        <!-- Formulario para crear/editar consulta -->
-        <div id="consultaForm" class="form-container" style="display: {% if modo in ['crear', 'editar'] %}block{% else %}none{% endif %};">
-            <h2>{% if modo == 'editar' %}Editar{% else %}Nueva{% endif %} Consulta Frecuente</h2>
-            
-            <form method="POST" action="{% if modo == 'editar' %}{{ url_for('editar_consulta', id=pregunta_actual[0]) }}{% else %}{{ url_for('nueva_consulta') }}{% endif %}">
-                <div class="form-group">
-                    <label for="pregunta">Pregunta:</label>
-                    <input type="text" id="pregunta" name="pregunta" class="form-control" 
-                           value="{% if pregunta_actual %}{{ pregunta_actual[1] }}{% endif %}" required>
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <div class="admin-container">
+                <div class="admin-header">
+                    <h1 class="admin-title"><i class="fas fa-question-circle"></i> Administrar Consultas Frecuentes</h1>
+                    <p class="admin-subtitle">Gestiona las preguntas y respuestas frecuentes de Teatro Olmo</p>
                 </div>
-                
-                <div class="form-group">
-                    <label for="respuesta">Respuesta:</label>
-                    <textarea id="respuesta" name="respuesta" class="form-control" required>{% if pregunta_actual %}{{ pregunta_actual[2] }}{% endif %}</textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="categoria_id">Categoría:</label>
-                    <select id="categoria_id" name="categoria_id" class="form-control" required>
-                        <option value="">Seleccionar categoría...</option>
-                        {% for categoria in categorias %}
-                            <option value="{{ categoria[0] }}" 
-                                    {% if pregunta_actual and pregunta_actual[3] == categoria[0] %}selected{% endif %}>
-                                {{ categoria[1] }}
-                            </option>
+
+                <!-- Mensajes Flash -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                                {{ message }}
+                            </div>
                         {% endfor %}
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="orden">Orden (para organizar dentro de la categoría):</label>
-                    <input type="number" id="orden" name="orden" class="form-control" min="0" 
-                           value="{% if pregunta_actual %}{{ pregunta_actual[4] }}{% else %}0{% endif %}">
-                </div>
-                
-                {% if modo == 'editar' %}
-                <div class="form-group">
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="activa" name="activa" 
-                               {% if pregunta_actual and pregunta_actual[5] %}checked{% endif %}>
-                        <label for="activa">Pregunta activa (visible en el sitio público)</label>
-                    </div>
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Formulario para nueva categoría -->
+                {% if modo not in ['crear', 'editar'] %}
+                <div class="category-form">
+                    <h3><i class="fas fa-folder-plus"></i> Agregar Nueva Categoría</h3>
+                    <form method="POST" action="{{ url_for('nueva_categoria') }}">
+                        <div class="category-form-flex">
+                            <div class="form-group">
+                                <label for="nombre">Nombre de la categoría:</label>
+                                <input type="text" id="nombre" name="nombre" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-success-category">
+                                <i class="fas fa-plus"></i> Crear Categoría
+                            </button>
+                        </div>
+                    </form>
                 </div>
                 {% endif %}
-                
-                <div style="display: flex; gap: 15px;">
-                    <button type="submit" class="btn btn-success">
-                        {% if modo == 'editar' %}Actualizar{% else %}Crear{% endif %} Consulta
-                    </button>
-                    <a href="{{ url_for('admin_consultas') }}" class="btn btn-primary">
-                        Cancelar
+
+                <!-- Botones de acción -->
+                <div class="action-buttons">
+                    <a href="{{ url_for('nueva_consulta') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nueva Consulta
+                    </a>
+                    <a href="{{ url_for('contactanos') }}" class="btn btn-warning" target="_blank">
+                        <i class="fas fa-eye"></i> Ver Vista Pública
                     </a>
                 </div>
-            </form>
-        </div>
 
-        <!-- Lista de consultas existentes -->
-        {% if modo != 'crear' %}
-        <div class="table-container">
-            <h2>Consultas Frecuentes Existentes</h2>
-            {% if preguntas %}
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Pregunta</th>
-                            <th>Respuesta</th>
-                            <th>Categoría</th>
-                            <th>Estado</th>
-                            <th>Orden</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for pregunta in preguntas %}
-                        <tr>
-                            <td>{{ pregunta[0] }}</td>
-                            <td>
-                                <div class="question-text" title="{{ pregunta[1] }}">
-                                    {{ pregunta[1] }}
-                                </div>
-                            </td>
-                            <td>
-                                <div class="answer-text" title="{{ pregunta[2] }}">
-                                    {{ pregunta[2] }}
-                                </div>
-                            </td>
-                            <td>{{ pregunta[5] }}</td>
-                            <td>
-                                <span class="{% if pregunta[3] %}status-active{% else %}status-inactive{% endif %}">
-                                    {% if pregunta[3] %}Activa{% else %}Inactiva{% endif %}
-                                </span>
-                            </td>
-                            <td>{{ pregunta[4] }}</td>
-                            <td>
-                                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                                    <a href="{{ url_for('editar_consulta', id=pregunta[0]) }}" 
-                                       class="btn btn-warning btn-sm">Editar</a>
-                                    
-                                    <button onclick="toggleConsulta({{ pregunta[0] }})" 
-                                            class="btn {% if pregunta[3] %}btn-warning{% else %}btn-success{% endif %} btn-sm">
-                                        {% if pregunta[3] %}Desactivar{% else %}Activar{% endif %}
-                                    </button>
-                                    
-                                    <form method="POST" action="{{ url_for('eliminar_consulta', id=pregunta[0]) }}" 
-                                          style="display: inline;" 
-                                          onsubmit="return confirm('¿Estás seguro de eliminar esta consulta?')">
-                                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <div class="alert alert-info">
-                    <p>No hay consultas frecuentes registradas. ¡Crea la primera!</p>
+                <!-- Formulario para crear/editar consulta -->
+                <div id="consultaForm" class="form-container" style="display: {% if modo in ['crear', 'editar'] %}block{% else %}none{% endif %};">
+                    <h2>
+                        <i class="fas fa-{% if modo == 'editar' %}edit{% else %}plus{% endif %}"></i>
+                        {% if modo == 'editar' %}Editar{% else %}Nueva{% endif %} Consulta Frecuente
+                    </h2>
+                    
+                    <form method="POST" action="{% if modo == 'editar' %}{{ url_for('editar_consulta', id=pregunta_actual[0]) }}{% else %}{{ url_for('nueva_consulta') }}{% endif %}">
+                        <div class="form-group">
+                            <label for="pregunta"><i class="fas fa-question"></i> Pregunta:</label>
+                            <input type="text" id="pregunta" name="pregunta" class="form-control" 
+                                   value="{% if pregunta_actual %}{{ pregunta_actual[1] }}{% endif %}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="respuesta"><i class="fas fa-comment-dots"></i> Respuesta:</label>
+                            <textarea id="respuesta" name="respuesta" class="form-control" required>{% if pregunta_actual %}{{ pregunta_actual[2] }}{% endif %}</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="categoria_id"><i class="fas fa-folder"></i> Categoría:</label>
+                            <select id="categoria_id" name="categoria_id" class="form-control" required>
+                                <option value="">Seleccionar categoría...</option>
+                                {% for categoria in categorias %}
+                                    <option value="{{ categoria[0] }}" 
+                                            {% if pregunta_actual and pregunta_actual[3] == categoria[0] %}selected{% endif %}>
+                                        {{ categoria[1] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="orden"><i class="fas fa-sort-numeric-down"></i> Orden (para organizar dentro de la categoría):</label>
+                            <input type="number" id="orden" name="orden" class="form-control" min="0" 
+                                   value="{% if pregunta_actual %}{{ pregunta_actual[4] }}{% else %}0{% endif %}">
+                        </div>
+                        
+                        {% if modo == 'editar' %}
+                        <div class="form-group">
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="activa" name="activa" 
+                                       {% if pregunta_actual and pregunta_actual[5] %}checked{% endif %}>
+                                <label for="activa"><i class="fas fa-toggle-on"></i> Pregunta activa (visible en el sitio público)</label>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i>
+                                {% if modo == 'editar' %}Actualizar{% else %}Crear{% endif %} Consulta
+                            </button>
+                            <a href="{{ url_for('admin_consultas') }}" class="btn btn-primary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
                 </div>
-            {% endif %}
-        </div>
-        {% endif %}
+
+                <!-- Lista de consultas existentes -->
+                {% if modo != 'crear' %}
+                <div class="table-container">
+                    <h2><i class="fas fa-list"></i> Consultas Frecuentes Existentes</h2>
+                    {% if preguntas %}
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Pregunta</th>
+                                    <th>Respuesta</th>
+                                    <th>Categoría</th>
+                                    <th>Estado</th>
+                                    <th>Orden</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pregunta in preguntas %}
+                                <tr>
+                                    <td>{{ pregunta[0] }}</td>
+                                    <td>
+                                        <div class="question-text" title="{{ pregunta[1] }}">
+                                            {{ pregunta[1] }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="answer-text" title="{{ pregunta[2] }}">
+                                            {{ pregunta[2] }}
+                                        </div>
+                                    </td>
+                                    <td>{{ pregunta[5] }}</td>
+                                    <td>
+                                        <span class="{% if pregunta[3] %}status-active{% else %}status-inactive{% endif %}">
+                                            {% if pregunta[3] %}Activa{% else %}Inactiva{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ pregunta[4] }}</td>
+                                    <td>
+                                        <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                            <a href="{{ url_for('editar_consulta', id=pregunta[0]) }}" 
+                                               class="btn btn-warning btn-sm">
+                                                <i class="fas fa-edit"></i> Editar
+                                            </a>
+                                            
+                                            <button onclick="toggleConsulta({{ pregunta[0] }})" 
+                                                    class="btn {% if pregunta[3] %}btn-warning{% else %}btn-success{% endif %} btn-sm">
+                                                <i class="fas fa-{% if pregunta[3] %}eye-slash{% else %}eye{% endif %}"></i>
+                                                {% if pregunta[3] %}Desactivar{% else %}Activar{% endif %}
+                                            </button>
+                                            
+                                            <form method="POST" action="{{ url_for('eliminar_consulta', id=pregunta[0]) }}" 
+                                                  style="display: inline;" 
+                                                  onsubmit="return confirm('¿Estás seguro de eliminar esta consulta?')">
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash"></i> Eliminar
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <div class="alert alert-info" style="margin: 20px;">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>No hay consultas frecuentes registradas.</strong> ¡Crea la primera!
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </main>
     </div>
-</div>
+
     <script>
+        const toggleButton = document.getElementById('menu-toggle');
+        const sidebar = document.querySelector('.sidebar');
+
+        toggleButton.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
         function showCreateForm() {
             document.getElementById('consultaForm').style.display = 'block';
             document.getElementById('consultaForm').scrollIntoView({ behavior: 'smooth' });

@@ -1,12 +1,13 @@
 import { initCarousel } from './carousel.js';
 import { initOlmobras } from './olmobras.js';
 import { initServicios } from './servicios.js';
+import { initObrasHistoricas } from './obras-historicas.js';
 
 document.addEventListener("DOMContentLoaded", () => {
   initCarousel();
   initOlmobras();
   initServicios();
-
+  initObrasHistoricas();
   
   // Ajuste automático de padding-top según altura del header
   const header = document.querySelector('header');

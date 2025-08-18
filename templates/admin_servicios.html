@@ -319,21 +319,38 @@
             color: #666;
         }
 
+        /* Botón hamburguesa */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 28px;
+            background: none;
+            border: none;
+            color: rgb(210, 233, 0);
+            z-index: 1100;
+            cursor: pointer;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
             .sidebar {
-                width: 250px;
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
+            width: 250px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
             }
 
             .sidebar.active {
-                transform: translateX(0);
+            transform: translateX(0);
             }
 
             .main-content {
-                margin-left: 0;
-                padding: 20px 15px;
+            margin-left: 0;
+            padding: 20px 15px;
             }
 
             .nav-buttons {
@@ -348,11 +365,12 @@
     </style>
 </head>
 <body>
+    <button id="menu-toggle" class="menu-toggle">&#9776;</button>
     <div class="admin-layout">
         <!-- Barra lateral -->
         <nav class="sidebar">
             <div class="sidebar-header">
-                <h2><i class="fas fa-theater-masks"></i> Teatro Olmo</h2>
+                <h2>Teatro Olmo</h2>
                 <p>Panel de Administración</p>
             </div>
             <div class="sidebar-menu">
@@ -362,8 +380,14 @@
                 <a href="{{ url_for('admin_obras') }}" class="menu-item">
                     <i class="fas fa-theater-masks"></i> Obras
                 </a>
+                <a href="{{ url_for('admin_obras_historicas') }}" class="menu-item">
+                    <i class="fas fa-solid fa-scroll"></i> Obras Historicas
+                </a>
                 <a href="{{ url_for('admin_consultas') }}" class="menu-item">
                     <i class="fas fa-question-circle"></i> Consultas Frecuentes
+                </a>
+                <a href="{{ url_for('whatsapp_sender') }}" class="menu-item">
+                    <i class="fa-brands fa-whatsapp"></i> Enviador de mensajes
                 </a>
                 <div class="menu-divider"></div>
                 <a href="{{ url_for('home') }}" class="menu-item">
@@ -467,4 +491,12 @@
         </main>
     </div>
 </body>
+<script>
+    const toggleButton = document.getElementById('menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    toggleButton.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+    });
+</script>
 </html>

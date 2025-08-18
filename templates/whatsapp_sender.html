@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviador Masivo de WhatsApp</title>
+    <!-- Font Awesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #050a24;
+            color: white; 
+            min-height: 100vh;
+        }
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Barra lateral */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 15px 25px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-left-color: #667eea;
+            color: #667eea;
+        }
+
+        .menu-item.active {
+            background: rgba(255, 107, 53, 0.1);
+            border-left-color: #ff6b35;
+            color: #ff6b35;
+            font-weight: bold;
+        }
+
+        .menu-item i {
+            width: 20px;
+            margin-right: 15px;
+            text-align: center;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            margin: 20px 25px;
+        }
+
+        .logout-item {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .logout-item:hover {
+            background: rgba(220, 53, 69, 0.2);
+            border-left-color: #dc3545;
+        }
+
+        /* Contenido principal */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-header {
+            background: linear-gradient(140deg, #aa0000, #eeff01);
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px 20px; /* Aumenta el padding vertical */
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border-radius: 15px;
+            background: #f8f9fa;
+            border-left: 5px solid #25D366;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #25D366;
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 5px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .file-upload {
+            border: 2px dashed #25D366;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload:hover {
+            background: rgba(37, 211, 102, 0.05);
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .client-list {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .client-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .client-item:hover {
+            background: #f8f9fa;
+        }
+
+        .client-item:last-child {
+            border-bottom: none;
+        }
+
+        .client-info {
+            flex: 1;
+        }
+
+        .client-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .client-phone {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #25D366;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #25D366;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .message-preview {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-style: italic;
+        }
+
+        .send-section {
+            background: linear-gradient(135deg, rgba(37, 211, 102, 0.1), rgba(18, 140, 126, 0.1));
+            border-color: #25D366;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .progress-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: linear-gradient(90deg, #25D366, #128C7E);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .add-client-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .admin-container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .add-client-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Barra lateral -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Panel Admin</h2>
+                <p>Olmo Teatro</p>
+            </div>
+            
+            <div class="sidebar-menu">
+                <a href="{{ url_for('admin_servicios') }}" class="menu-item">
+                    <i class="fas fa-cogs"></i> Servicios
+                </a>
+                <a href="{{ url_for('admin_obras') }}" class="menu-item">
+                    <i class="fas fa-theater-masks"></i> Obras
+                </a>
+                <a href="{{ url_for('admin_obras_historicas') }}" class="menu-item">
+                    <i class="fas fa-solid fa-scroll"></i> Obras Historicas
+                </a>
+                <a href="{{ url_for('admin_consultas') }}" class="menu-item">
+                    <i class="fas fa-question-circle"></i> Consultas Frecuentes
+                </a>
+                <a href="{{ url_for('whatsapp_sender') }}" class="menu-item">
+                    <i class="fa-brands fa-whatsapp"></i> Enviador de mensajes
+                </a>
+                <div class="menu-divider"></div>
+                <a href="{{ url_for('home') }}" class="menu-item">
+                    <i class="fas fa-home"></i> Ver Sitio Web
+                </a>
+                <a href="{{ url_for('logout') }}" class="menu-item logout-item">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="main-content">
+            <div class="admin-container">
+                <header class="admin-header">
+                    <h1>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.893 3.488"/>
+                        </svg>
+                        Enviador de mensajes - Olmo Teatro
+                    </h1>
+                    <p>Envía mensajes personalizados a múltiples clientes</p>
+                </header>
+
+                <!-- Estadísticas -->
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalClients">0</div>
+                        <div class="stat-label">Clientes Total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="readyToSend">0</div>
+                        <div class="stat-label">Listos para Enviar</div>
+                    </div>
+                </div>
+
+                <!-- Sección de importación -->
+                <div class="section">
+                    <h2>📊 Importar Clientes desde Excel</h2>
+                    
+                    <div class="file-upload" onclick="document.getElementById('fileInput').click()">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7,10 12,15 17,10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        <h3>Haz clic aquí para seleccionar archivo Excel</h3>
+                        <p>Formatos soportados: .xlsx, .xls</p>
+                        <p style="font-size: 12px; margin-top: 10px; color: #666;">
+                            El archivo debe contener columnas con nombres como: "nombre", "telefono", "celular", "phone", etc.
+                        </p>
+                        <input type="file" id="fileInput" accept=".xlsx,.xls" />
+                    </div>
+                </div>
+
+                <!-- Sección agregar cliente manual -->
+                <div class="section">
+                    <h2>👤 Agregar Cliente Manual</h2>
+                    
+                    <div class="add-client-form">
+                        <div class="form-group">
+                            <label for="clientName">Nombre del Cliente</label>
+                            <input type="text" id="clientName" placeholder="Ej: Juan Pérez">
+                        </div>
+                        <div class="form-group">
+                            <label for="clientPhone">Número de Teléfono</label>
+                            <input type="tel" id="clientPhone" placeholder="Ej: +51987654321">
+                        </div>
+                        <button class="btn" onclick="addClient()">
+                            ➕ Agregar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sección del mensaje -->
+                <div class="section">
+                    <h2>💬 Personalizar Mensaje</h2>
+                    
+                    <div class="form-group">
+                        <label for="messageTemplate">Mensaje (usa {nombre} para personalizar)</label>
+                        <textarea id="messageTemplate" 
+                                  placeholder="Ej: Hola {nombre}, espero que tengas un excelente día. Te escribo para informarte sobre nuestra nueva promoción..."></textarea>
+                        <small style="color: #666;">
+                            💡 Usa <strong>{nombre}</strong> en cualquier parte del mensaje para que se reemplace automáticamente con el nombre de cada cliente.
+                        </small>
+                    </div>
+
+                    <div class="message-preview" id="messagePreview">
+                        <strong>Vista previa:</strong><br>
+                        <span id="previewText">Escribe tu mensaje arriba para ver la vista previa...</span>
+                    </div>
+                </div>
+
+                <!-- Lista de clientes -->
+                <div class="section">
+                    <h2>
+                        👥 Lista de Clientes
+                        <button class="btn btn-secondary" onclick="exportClients()" style="margin-left: auto; font-size: 14px;">
+                            📥 Exportar Excel
+                        </button>
+                        <button class="btn btn-danger" onclick="clearAllClients()" style="font-size: 14px;">
+                            🗑️ Limpiar Todo
+                        </button>
+                    </h2>
+                    
+                    <div class="client-list" id="clientList">
+                        <p style="text-align: center; color: #666; padding: 20px;">
+                            No hay clientes agregados. Importa desde Excel o agrega manualmente.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Sección de envío -->
+                <div class="section send-section">
+                    <h2>🚀 Enviar Mensajes a Todos los Clientes</h2>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Importante:</strong> Los mensajes se abrirán uno por uno en WhatsApp Web. Asegúrate de tener WhatsApp Web abierto y una conexión estable.
+                    </div>
+                    
+                    <button class="btn" onclick="sendMessages()" id="sendButton" style="font-size: 18px; padding: 15px 30px;">
+                        📱 Enviar Mensajes a Todos los Clientes
+                    </button>
+
+                    <div id="sendProgress" style="display: none; margin-top: 20px;">
+                        <div class="progress-container">
+                            <div id="progressBar" class="progress-bar"></div>
+                        </div>
+                        <p id="progressText" style="text-align: center; margin-top: 10px;">Preparando envío...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let clients = [];
+        const API_BASE = '';
+
+        // Inicializar aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            loadClients();
+            document.getElementById('messageTemplate').addEventListener('input', updateMessagePreview);
+        });
+
+        // Cargar clientes desde el servidor
+        async function loadClients() {
+            try {
+                const response = await fetch('/api/clients');
+                const data = await response.json();
+                
+                if (data.success) {
+                    clients = data.clients;
+                    updateClientList();
+                    updateStats();
+                }
+            } catch (error) {
+                console.error('Error loading clients:', error);
+            }
+        }
+
+        // Manejar subida de archivo Excel
+        document.getElementById('fileInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                showAlert('📤 Subiendo archivo...', 'info');
+                
+                const response = await fetch('/api/upload-excel', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    loadClients(); // Recargar lista
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                showAlert('❌ Error al subir archivo: ' + error.message, 'error');
+            }
+        });
+
+        // Agregar cliente manualmente
+        async function addClient() {
+            const name = document.getElementById('clientName').value.trim();
+            const phone = document.getElementById('clientPhone').value.trim();
+            
+            if (!name || !phone) {
+                showAlert('❌ Por favor completa todos los campos', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/clients', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, phone })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    document.getElementById('clientName').value = '';
+                    document.getElementById('clientPhone').value = '';
+                    loadClients();
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                showAlert('❌ Error al agregar cliente: ' + error.message, 'error');
+            }
+        }
+
+        // Eliminar cliente
+        async function removeClient(id) {
+            try {
+                const response = await fetch(`/api/clients/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    loadClients();
+                }
+            } catch (error) {
+                showAlert('❌ Error al eliminar cliente', 'error');
+            }
+        }
+
+        // Limpiar todos los clientes
+        async function clearAllClients() {
+            if (clients.length === 0) {
+                showAlert('⚠️ No hay clientes para eliminar', 'warning');
+                return;
+            }
+            
+            if (!confirm('¿Estás seguro de que quieres eliminar todos los clientes?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/clients/clear', {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    loadClients();
+                }
+            } catch (error) {
+                showAlert('❌ Error al limpiar clientes', 'error');
+            }
+        }
+
+        // Exportar clientes a Excel
+        async function exportClients() {
+            if (clients.length === 0) {
+                showAlert('❌ No hay clientes para exportar', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/export-excel');
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'clientes_whatsapp.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    showAlert('📥 Lista de clientes exportada exitosamente', 'success');
+                } else {
+                    const data = await response.json();
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                showAlert('❌ Error al exportar: ' + error.message, 'error');
+            }
+        }
+
+        // Enviar mensajes
+        async function sendMessages() {
+            if (clients.length === 0) {
+                showAlert('❌ No hay clientes para enviar mensajes', 'error');
+                return;
+            }
+            
+            const template = document.getElementById('messageTemplate').value.trim();
+            if (!template) {
+                showAlert('❌ Por favor escribe un mensaje', 'error');
+                return;
+            }
+            
+            if (!confirm(`¿Estás seguro de enviar mensajes a ${clients.length} cliente(s)?`)) {
+                return;
+            }
+
+            try {
+                showAlert('🔄 Generando enlaces de WhatsApp...', 'info');
+                
+                const response = await fetch('/api/generate-whatsapp-urls', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: template })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    startSending(data.urls);
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                showAlert('❌ Error al generar enlaces: ' + error.message, 'error');
+            }
+        }
+
+// Proceso de envío corregido
+async function startSending(urls) {
+    const sendButton = document.getElementById('sendButton');
+    const progressDiv = document.getElementById('sendProgress');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    
+    sendButton.disabled = true;
+    sendButton.innerHTML = '⏳ Enviando...';
+    progressDiv.style.display = 'block';
+    
+    let currentIndex = 0;
+    const total = urls.length;
+    
+    // Función para enviar el siguiente mensaje
+    function sendNext() {
+        if (currentIndex >= urls.length) {
+            // Completar proceso
+            progressText.textContent = `✅ ¡Completado! Se enviaron ${total} mensajes`;
+            sendButton.disabled = false;
+            sendButton.innerHTML = '📱 Enviar Mensajes a Todos los Clientes';
+            
+            showAlert(`🎉 ¡Proceso completado! Se enviaron ${total} mensajes de WhatsApp.`, 'success');
+            
+            // Ocultar progreso después de 5 segundos
+            setTimeout(() => {
+                progressDiv.style.display = 'none';
+            }, 5000);
+            return;
+        }
+        
+        const item = urls[currentIndex];
+        
+        // Actualizar progreso
+        const progress = Math.round(((currentIndex + 1) / total) * 100);
+        progressBar.style.width = progress + '%';
+        progressText.innerHTML = `
+            Enviando mensaje ${currentIndex + 1} de ${total}<br>
+            <strong>Cliente:</strong> ${item.client.name}<br>
+            <small>Se abrirá WhatsApp. Envía el mensaje y haz clic en "Siguiente" para continuar.</small>
+        `;
+        
+        // Crear botones de control
+        const controlButtons = document.getElementById('controlButtons') || createControlButtons();
+        controlButtons.style.display = 'block';
+        
+        // Abrir WhatsApp para este cliente
+        window.open(item.url, '_blank', 'width=1000,height=600');
+        
+        currentIndex++;
+    }
+    
+    // Crear botones de control si no existen
+    function createControlButtons() {
+        const controlDiv = document.createElement('div');
+        controlDiv.id = 'controlButtons';
+        controlDiv.style.textAlign = 'center';
+        controlDiv.style.marginTop = '20px';
+        controlDiv.innerHTML = `
+            <button class="btn" onclick="sendNext()" style="margin: 5px;">
+                ➡️ Siguiente Cliente
+            </button>
+            <button class="btn btn-secondary" onclick="pauseSending()" style="margin: 5px;">
+                ⏸️ Pausar Envío
+            </button>
+            <button class="btn btn-danger" onclick="stopSending()" style="margin: 5px;">
+                ⏹️ Detener Envío
+            </button>
+        `;
+        progressDiv.appendChild(controlDiv);
+        return controlDiv;
+    }
+    
+    // Exponer funciones globalmente para los botones
+    window.sendNext = sendNext;
+    window.pauseSending = pauseSending;
+    window.stopSending = stopSending;
+    
+    // Comenzar con el primer mensaje
+    sendNext();
+}
+
+// Función para pausar el envío
+function pauseSending() {
+    const progressText = document.getElementById('progressText');
+    progressText.innerHTML += '<br><span style="color: orange;">⏸️ Envío pausado. Haz clic en "Siguiente Cliente" para continuar.</span>';
+}
+
+// Función para detener el envío
+function stopSending() {
+    const sendButton = document.getElementById('sendButton');
+    const progressDiv = document.getElementById('sendProgress');
+    const controlButtons = document.getElementById('controlButtons');
+    
+    sendButton.disabled = false;
+    sendButton.innerHTML = '📱 Enviar Mensajes a Todos los Clientes';
+    
+    if (controlButtons) {
+        controlButtons.style.display = 'none';
+    }
+    
+    progressDiv.style.display = 'none';
+    
+    showAlert('🛑 Envío detenido por el usuario', 'warning');
+}
+
+// Versión alternativa automática con mayor delay (si prefieres automático)
+async function startSendingAuto(urls) {
+    const sendButton = document.getElementById('sendButton');
+    const progressDiv = document.getElementById('sendProgress');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    
+    sendButton.disabled = true;
+    sendButton.innerHTML = '⏳ Enviando...';
+    progressDiv.style.display = 'block';
+    
+    let sent = 0;
+    const total = urls.length;
+    const delay = 15000; // 15 segundos entre cada envío (más tiempo para enviar)
+    
+    for (let i = 0; i < urls.length; i++) {
+        const item = urls[i];
+        
+        // Actualizar progreso
+        const progress = Math.round(((i + 1) / total) * 100);
+        progressBar.style.width = progress + '%';
+        progressText.innerHTML = `
+            Enviando mensaje ${i + 1} de ${total}<br>
+            <strong>Cliente:</strong> ${item.client.name}<br>
+            <small>Tienes 15 segundos para enviar este mensaje antes del siguiente</small>
+        `;
+        
+        // Abrir WhatsApp
+        window.open(item.url, '_blank');
+        sent++;
+        
+        // Esperar antes del siguiente envío (excepto en el último)
+        if (i < urls.length - 1) {
+            // Mostrar countdown
+            for (let countdown = 15; countdown > 0; countdown--) {
+                progressText.innerHTML = `
+                    Enviando mensaje ${i + 1} de ${total} - Completado<br>
+                    <strong>Próximo:</strong> ${urls[i + 1].client.name}<br>
+                    <small>Siguiente mensaje en ${countdown} segundos...</small>
+                `;
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+    }
+    
+    // Completar proceso
+    progressText.textContent = `✅ ¡Completado! Se abrieron ${sent} chats de WhatsApp`;
+    sendButton.disabled = false;
+    sendButton.innerHTML = '📱 Enviar Mensajes a Todos los Clientes';
+    
+    showAlert(`🎉 ¡Proceso completado! Se abrieron ${sent} chats de WhatsApp.`, 'success');
+    
+    // Ocultar progreso después de 3 segundos
+    setTimeout(() => {
+        progressDiv.style.display = 'none';
+    }, 3000);
+}
+
+        // Actualizar lista de clientes
+        function updateClientList() {
+            const clientList = document.getElementById('clientList');
+            
+            if (clients.length === 0) {
+                clientList.innerHTML = `
+                    <p style="text-align: center; color: #666; padding: 20px;">
+                        No hay clientes agregados. Importa desde Excel o agrega manualmente.
+                    </p>
+                `;
+                return;
+            }
+            
+            clientList.innerHTML = clients.map(client => `
+                <div class="client-item">
+                    <div class="client-info">
+                        <div class="client-name">${client.name}</div>
+                        <div class="client-phone">${client.phone}</div>
+                    </div>
+                    <button class="btn btn-danger" onclick="removeClient(${client.id})" style="padding: 8px 12px; font-size: 14px;">
+                        🗑️ Eliminar
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Actualizar estadísticas
+        function updateStats() {
+            document.getElementById('totalClients').textContent = clients.length;
+            document.getElementById('readyToSend').textContent = clients.length;
+        }
+
+        // Actualizar vista previa del mensaje
+        function updateMessagePreview() {
+            const template = document.getElementById('messageTemplate').value;
+            const preview = template.replace(/{nombre}/g, 'Juan Pérez');
+            document.getElementById('previewText').textContent = preview || 'Escribe tu mensaje arriba para ver la vista previa...';
+        }
+
+        // Mostrar alertas
+        function showAlert(message, type = 'success') {
+            // Remover alertas existentes
+            const existingAlerts = document.querySelectorAll('.temp-alert');
+            existingAlerts.forEach(alert => alert.remove());
+            
+            const alertClass = type === 'success' ? 'alert-success' : 
+                              type === 'warning' ? 'alert-warning' : 
+                              type === 'info' ? 'alert-success' : 'alert-error';
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${alertClass} temp-alert`;
+            alertDiv.innerHTML = message;
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '20px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.style.maxWidth = '400px';
+            alertDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            
+            document.body.appendChild(alertDiv);
+            
+            // Auto-remover después de 4 segundos
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 4000);
+        }
+
+        // Atajos de teclado
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + Enter para agregar cliente
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                const nameInput = document.getElementById('clientName');
+                const phoneInput = document.getElementById('clientPhone');
+                
+                if (nameInput.value.trim() && phoneInput.value.trim()) {
+                    addClient();
+                }
+            }
+        });
+
+        // Validación en tiempo real del teléfono
+        document.getElementById('clientPhone').addEventListener('input', function(e) {
+            let value = e.target.value;
+            // Permitir solo números, espacios, guiones y +
+            value = value.replace(/[^\d\s\-\+]/g, '');
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>
