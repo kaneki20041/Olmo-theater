@@ -409,7 +409,7 @@
             <!-- Información actual -->
             <div class="current-info">
                 <h3>Editando: {{ obra.title }}</h3>
-                <span class="category-badge">{{ 'Trayectoria' if categoria_actual == 'trayectoria' else 'Proyectos Históricos' }}</span>
+                <span class="category-badge">{{ 'Trayectoria' if categoria_actual == 'trayectoria' else 'Proyectos' }}</span>
                 <p>ID: {{ obra.id }} | Año: {{ obra.year }}</p>
             </div>
 
@@ -421,12 +421,12 @@
                             Trayectoria
                         </option>
                         <option value="proyectos" {{ 'selected' if categoria_actual == 'proyectos' else '' }}>
-                            Proyectos Históricos
+                            Proyectos
                         </option>
                     </select>
                     <div class="category-info">
                         <strong>Trayectoria:</strong> Obras teatrales principales de la compañía.<br>
-                        <strong>Proyectos Históricos:</strong> Iniciativas especiales y proyectos culturales.
+                        <strong>Proyectos:</strong> Iniciativas especiales y proyectos culturales.
                     </div>
                 </div>
 

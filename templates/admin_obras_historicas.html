@@ -508,7 +508,7 @@
                     <i class="fas fa-theater-masks"></i> Obras
                 </a>
                 <a href="{{ url_for('admin_obras_historicas') }}" class="menu-item">
-                    <i class="fas fa-solid fa-scroll"></i> Obras Historicas
+                    <i class="fas fa-solid fa-scroll"></i> Repertorio
                 </a>
                 <a href="{{ url_for('admin_consultas') }}" class="menu-item">
                     <i class="fas fa-question-circle"></i> Consultas Frecuentes
@@ -531,9 +531,9 @@
     <header class="admin-header">
         <h1>
             <i class="fas fa-theater-masks"></i>
-            Panel de Administración - Obras Históricas
+            Panel de Administración - Repertorio
         </h1>
-        <div class="subtitle">Gestiona las obras de trayectoria y proyectos históricos</div>
+        <div class="subtitle">Gestiona las obras de trayectoria y proyectos</div>
     </header>
 
         <!-- Flash Messages -->
@@ -557,7 +557,7 @@
             </div>
             <div class="stat-card">
                 <div class="stat-number">{{ stats.total_proyectos }}</div>
-                <div class="stat-label">Proyectos Históricos</div>
+                <div class="stat-label">Proyectos</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number">{{ stats.paginas_trayectoria }}</div>
@@ -576,7 +576,7 @@
                     Trayectoria ({{ stats.total_trayectoria }})
                 </button>
                 <button class="category-btn" data-category="proyectos">
-                    Proyectos Históricos ({{ stats.total_proyectos }})
+                    Proyectos ({{ stats.total_proyectos }})
                 </button>
             </div>
             <a href="{{ url_for('nueva_obra_historica') }}" class="add-btn">

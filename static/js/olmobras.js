@@ -146,7 +146,7 @@ function actualizarObras() {
 
       // Evento click para abrir WhatsApp
       fechaItem.addEventListener('click', function () {
-        const mensaje = `¡Hola! Me interesa asistir a la obra "${obra.titulo}" el día ${fecha.dia} de ${fecha.mes}. ¿Podría reservar?`;
+        const mensaje = `¡Hola! Me interesa asistir a la obra "${obra.titulo}" el día ${fecha.dia} de ${fecha.mes}. ¿Cómo podría adquirir las entradas?`;
         const whatsappURL = `https://wa.me/+51947919832?text=${encodeURIComponent(mensaje)}`;
         window.open(whatsappURL, '_blank');
       });

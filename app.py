@@ -3,28 +3,35 @@ from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import uuid
 import pandas as pd
 import secrets
+import hashlib
 import re # Asegúrate de que 're' esté importado para 'valid_url'
 import logging # Importar el módulo logging
 from collections import OrderedDict
 from functools import wraps
 import math
 from PIL import Image
+import redis
 
 # Carga las variables de entorno desde .flaskenv o .env
 load_dotenv()
 app = Flask(__name__)
+
 app.secret_key = os.environ.get("SECRET_KEY")
-USERNAME = os.environ.get("ADMIN_USERNAME")
-PASSWORD = os.environ.get("ADMIN_PASSWORD")
+# Credenciales del admin (hasheadas para mayor seguridad)
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 print("SECRET_KEY:", os.environ.get("SECRET_KEY"))
 print("USERNAME:", os.environ.get("ADMIN_USERNAME"))
 print("PASSWORD:", os.environ.get("ADMIN_PASSWORD"))
 
-
+# Storage en memoria (sin Redis)
+active_sessions = {}
+failed_attempts = {}
+session_cleanup_times = {}
 
 
 # Configuración para subida de archivos
@@ -38,9 +45,16 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['UPLOAD_FOLDER_ELENCO'] = UPLOAD_FOLDER_ELENCO
 app.config['UPLOAD_FOLDER_SERVICIOS'] = UPLOAD_FOLDER_SERVICIOS
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB máximo
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 # Variable global para almacenar clientes (en producción usa base de datos)
 clients_storage = []
+
+
+# Configuración de seguridad adicional
+MAX_LOGIN_ATTEMPTS = 5
+LOCKOUT_DURATION = 15  # minutos
+SESSION_TIMEOUT = 30  # minutos
 
 
 for folder in [UPLOAD_FOLDER, UPLOAD_FOLDER_ELENCO, UPLOAD_FOLDER_SERVICIOS]:
@@ -64,6 +78,32 @@ DATA_FILE = 'teatro_faq.json'
 JSON_FILE = 'obras_historicas.json'
 # Las variables CATEGORIAS_SERVICIOS y NOMBRES_CATEGORIAS ya no son globales y estáticas
 # Ahora se generarán dinámicamente dentro de cargar_servicios()
+
+
+def cleanup_expired_data():
+    """Limpiar datos expirados de memoria"""
+    current_time = datetime.now()
+    
+    # Limpiar intentos fallidos expirados (1 hora)
+    expired_ips = []
+    for ip, data in failed_attempts.items():
+        if current_time - data.get('first_attempt', current_time) > timedelta(hours=1):
+            expired_ips.append(ip)
+    
+    for ip in expired_ips:
+        del failed_attempts[ip]
+        print(f"🧹 Limpiados intentos fallidos expirados para IP: {ip}")
+    
+    # Limpiar sesiones expiradas
+    expired_users = []
+    for username, data in active_sessions.items():
+        last_activity = datetime.fromisoformat(data['last_activity'])
+        if current_time - last_activity > timedelta(minutes=SESSION_TIMEOUT):
+            expired_users.append(username)
+    
+    for username in expired_users:
+        del active_sessions[username]
+        print(f"🧹 Sesión expirada limpiada para: {username}")
 
 def init_json_data():
     initial_data = {
@@ -246,14 +286,226 @@ def get_pregunta_by_id(pregunta_id, data):
 # Inicializar datos al cargar la aplicación
 load_data()
 
+def hash_password(password):
+    """Hash de contraseña con salt"""
+    salt = secrets.token_hex(16)
+    password_hash = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000)
+    return f"{salt}:{password_hash.hex()}"
+
+def verify_password(stored_password, provided_password):
+    """Verificar contraseña hasheada"""
+    try:
+        salt, password_hash = stored_password.split(':')
+        provided_hash = hashlib.pbkdf2_hmac('sha256', provided_password.encode(), salt.encode(), 100000)
+        return password_hash == provided_hash.hex()
+    except:
+        # Fallback para contraseñas en texto plano (temporal)
+        return hashlib.sha256(provided_password.encode()).hexdigest() == ADMIN_PASSWORD_HASH
+
+def get_client_ip():
+    """Obtener IP del cliente considerando proxies"""
+    if request.headers.getlist("X-Forwarded-For"):
+        return request.headers.getlist("X-Forwarded-For")[0].split(',')[0].strip()
+    return request.remote_addr
+
+def generate_session_token():
+    """Generar token único de sesión"""
+    return secrets.token_urlsafe(32)
+
+def get_device_fingerprint():
+    """Crear huella digital del dispositivo"""
+    user_agent = request.headers.get('User-Agent', '')
+    accept_language = request.headers.get('Accept-Language', '')
+    accept_encoding = request.headers.get('Accept-Encoding', '')
+    
+    fingerprint_data = f"{user_agent}|{accept_language}|{accept_encoding}"
+    return hashlib.md5(fingerprint_data.encode()).hexdigest()
+
+def is_ip_locked(ip):
+    """Verificar si IP está bloqueada por intentos fallidos"""
+    cleanup_expired_data()  # Limpiar datos expirados
+    
+    if ip in failed_attempts:
+        attempts_data = failed_attempts[ip]
+        if attempts_data['count'] >= MAX_LOGIN_ATTEMPTS:
+            if datetime.now() < attempts_data['lockout_until']:
+                return True
+            else:
+                # Limpiar bloqueo expirado
+                del failed_attempts[ip]
+                print(f"🔓 Bloqueo expirado removido para IP: {ip}")
+    return False
+
+
+def record_failed_attempt(ip):
+    """Registrar intento fallido de login"""
+    current_time = datetime.now()
+    
+    if ip not in failed_attempts:
+        failed_attempts[ip] = {
+            'count': 0, 
+            'lockout_until': current_time,
+            'first_attempt': current_time
+        }
+    
+    failed_attempts[ip]['count'] += 1
+    failed_attempts[ip]['last_attempt'] = current_time
+    
+    print(f"⚠️ Intento fallido #{failed_attempts[ip]['count']} para IP: {ip}")
+    
+    if failed_attempts[ip]['count'] >= MAX_LOGIN_ATTEMPTS:
+        failed_attempts[ip]['lockout_until'] = current_time + timedelta(minutes=LOCKOUT_DURATION)
+        print(f"🚫 IP {ip} BLOQUEADA por {LOCKOUT_DURATION} minutos")
+
+def clear_failed_attempts(ip):
+    """Limpiar intentos fallidos después de login exitoso"""
+    if ip in failed_attempts:
+        del failed_attempts[ip]
+        print(f"✅ Intentos fallidos limpiados para IP: {ip}")
+
+def is_session_unique(username, new_session_token, device_fingerprint):
+    """Verificar si ya existe una sesión activa diferente"""
+    if username in active_sessions:
+        existing_data = active_sessions[username]
+        if (existing_data['token'] != new_session_token or 
+            existing_data['device_fingerprint'] != device_fingerprint):
+            print(f"⚠️ Sesión duplicada detectada para {username}")
+            return False
+    return True
+
+def create_session(username, session_token, device_fingerprint, ip):
+    """Crear nueva sesión"""
+    session_data = {
+        'token': session_token,
+        'device_fingerprint': device_fingerprint,
+        'ip': ip,
+        'created_at': datetime.now().isoformat(),
+        'last_activity': datetime.now().isoformat()
+    }
+    active_sessions[username] = session_data
+    print(f"✅ Nueva sesión creada para: {username} desde IP: {ip}")
+
+def update_session_activity(username):
+    """Actualizar última actividad de la sesión"""
+    session_key = f"active_session:{username}"
+    
+    if REDIS_AVAILABLE:
+        existing_session = redis_client.get(session_key)
+        if existing_session:
+            session_data = json.loads(existing_session.decode())
+            session_data['last_activity'] = datetime.now().isoformat()
+            redis_client.setex(session_key, SESSION_TIMEOUT * 60, json.dumps(session_data))
+    else:
+        if username in active_sessions:
+            active_sessions[username]['last_activity'] = datetime.now().isoformat()
+
+def validate_session(username, session_token, device_fingerprint):
+    """Validar sesión activa"""
+    if username not in active_sessions:
+        return False
+    
+    session_data = active_sessions[username]
+    
+    # Verificar token y huella digital
+    if (session_data['token'] != session_token or 
+        session_data['device_fingerprint'] != device_fingerprint):
+        print(f"🚫 Token o fingerprint inválido para {username}")
+        return False
+    
+    # Verificar si la sesión ha expirado por inactividad
+    last_activity = datetime.fromisoformat(session_data['last_activity'])
+    if datetime.now() - last_activity > timedelta(minutes=SESSION_TIMEOUT):
+        invalidate_session(username)
+        print(f"⏰ Sesión expirada por inactividad para {username}")
+        return False
+    
+    # Actualizar actividad
+    active_sessions[username]['last_activity'] = datetime.now().isoformat()
+    return True
+
+def invalidate_session(username):
+    """Invalidar sesión"""
+    if username in active_sessions:
+        del active_sessions[username]
+        print(f"🔐 Sesión invalidada para: {username}")
+
+def get_remaining_lockout_time(ip):
+    """Obtener tiempo restante de bloqueo"""
+    if ip in failed_attempts and failed_attempts[ip]['count'] >= MAX_LOGIN_ATTEMPTS:
+        lockout_until = failed_attempts[ip]['lockout_until']
+        remaining = lockout_until - datetime.now()
+        if remaining.total_seconds() > 0:
+            return int(remaining.total_seconds() / 60) + 1  # minutos restantes
+    return 0
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get('logged_in'):
             flash('Debes iniciar sesión para acceder a esta sección.', 'error')
             return redirect(url_for('login'))
+        
+        username = session.get('username')
+        session_token = session.get('session_token')
+        device_fingerprint = session.get('device_fingerprint')
+        
+        if not all([username, session_token, device_fingerprint]):
+            session.clear()
+            flash('Sesión inválida. Por favor, inicie sesión nuevamente.', 'error')
+            print(f"🚫 Sesión inválida detectada")
+            return redirect(url_for('login'))
+        
+        if not validate_session(username, session_token, device_fingerprint):
+            session.clear()
+            flash('Su sesión ha expirado o fue invalidada. Por favor, inicie sesión nuevamente.', 'error')
+            return redirect(url_for('login'))
+        
         return f(*args, **kwargs)
     return decorated_function
+
+@app.route('/session-status')
+@login_required
+def session_status():
+    """Endpoint para verificar estado de sesión (para JavaScript)"""
+    username = session.get('username')
+    if username in active_sessions:
+        last_activity = datetime.fromisoformat(active_sessions[username]['last_activity'])
+        time_left = SESSION_TIMEOUT * 60 - int((datetime.now() - last_activity).total_seconds())
+        time_left = max(0, time_left)
+    else:
+        time_left = 0
+    
+    return jsonify({
+        'valid': True,
+        'username': username,
+        'time_left': time_left,
+        'session_timeout': SESSION_TIMEOUT * 60
+    })
+
+@app.before_request
+def check_session():
+    """Verificar sesión antes de cada request"""
+    # Excluir rutas públicas
+    excluded_paths = ['/login', '/static', '/favicon.ico']
+    
+    if any(request.path.startswith(path) for path in excluded_paths):
+        return
+    
+    # Limpiar datos expirados periódicamente
+    cleanup_expired_data()
+    
+    if session.get('logged_in'):
+        login_time = session.get('login_time')
+        if login_time:
+            login_datetime = datetime.fromisoformat(login_time)
+            if datetime.now() - login_datetime > timedelta(minutes=SESSION_TIMEOUT):
+                username = session.get('username')
+                if username:
+                    invalidate_session(username)
+                session.clear()
+                flash('Su sesión ha expirado por inactividad.', 'info')
+                return redirect(url_for('login'))
+
 
 def allowed_file(filename):
     """Verifica si el archivo tiene una extensión permitida"""
@@ -1332,16 +1584,54 @@ def ordenar_servicios(servicios):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if session.get('logged_in'):
-        return redirect(url_for('admin_servicios'))  # Evita repetir login
+        print(f"ℹ️ Usuario ya logueado redirigiendo...")
+        return redirect(url_for('admin_servicios'))
+
+    client_ip = get_client_ip()
+    
+    # Verificar si IP está bloqueada
+    if is_ip_locked(client_ip):
+        remaining_minutes = get_remaining_lockout_time(client_ip)
+        flash(f'IP bloqueada por intentos fallidos. Tiempo restante: {remaining_minutes} minutos.', 'error')
+        print(f"🚫 Acceso denegado a IP bloqueada: {client_ip}")
+        return render_template('login.html'), 429
 
     if request.method == 'POST':
-        usuario = request.form['username']
-        clave = request.form['password']
-        if usuario == USERNAME and clave == PASSWORD:
+        usuario = request.form.get('username', '').strip()
+        clave = request.form.get('password', '')
+        
+        print(f"🔐 Intento de login desde IP: {client_ip}, Usuario: {usuario}")
+        
+        if not usuario or not clave:
+            flash('Usuario y contraseña son requeridos', 'error')
+            return render_template('login.html')
+        
+        # Verificar credenciales
+        if usuario == ADMIN_USERNAME and clave == ADMIN_PASSWORD:
+            device_fingerprint = get_device_fingerprint()
+            session_token = generate_session_token()
+            
+            # Verificar si hay otra sesión activa
+            if not is_session_unique(usuario, session_token, device_fingerprint):
+                invalidate_session(usuario)
+                flash('Sesión anterior cerrada. Solo se permite una sesión activa por usuario.', 'info')
+            
+            # Crear nueva sesión
+            create_session(usuario, session_token, device_fingerprint, client_ip)
+            
+            # Configurar sesión de Flask
+            session.permanent = True
             session['logged_in'] = True
+            session['username'] = usuario
+            session['session_token'] = session_token
+            session['device_fingerprint'] = device_fingerprint
+            session['login_time'] = datetime.now().isoformat()
+            
+            clear_failed_attempts(client_ip)
             flash('Has iniciado sesión correctamente', 'success')
             return redirect(url_for('admin_servicios'))
         else:
+            record_failed_attempt(client_ip)
             flash('Credenciales incorrectas', 'error')
 
     return render_template('login.html')
@@ -1770,8 +2060,13 @@ def api_obras_historicas():
 
 @app.route('/logout')
 def logout():
-    session.pop('logged_in', None)
-    flash('Sesión cerrada', 'success')
+    username = session.get('username')
+    if username:
+        invalidate_session(username)
+        print(f"👋 Logout para usuario: {username}")
+    
+    session.clear()
+    flash('Sesión cerrada correctamente', 'success')
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
