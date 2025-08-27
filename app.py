@@ -53,8 +53,7 @@ ADMIN_IPS = [
     '2800:200:fe10:7aa:f176:6c2b:a1eb:e8f7',
     '2800:200:fdd0:61d:367c:91f9:7f28:a579',
     '2800:200:fdd0:61d:ec5d:4af1:28fc:357a',
-    '179.7.16.124',
-    '127.0.0.1'  # IPv6
+    '2800:200:fdd0:61d:e8b5:1b18:a5ee:1df4' # IPv6
 ]
 
 # Variable global para almacenar clientes (en producción usa base de datos)
