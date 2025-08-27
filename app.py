@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash,session
+from flask import Flask, abort, render_template, request, redirect, url_for, jsonify, flash,session
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 import json
@@ -46,6 +46,14 @@ app.config['UPLOAD_FOLDER_ELENCO'] = UPLOAD_FOLDER_ELENCO
 app.config['UPLOAD_FOLDER_SERVICIOS'] = UPLOAD_FOLDER_SERVICIOS
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB máximo
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+
+ADMIN_IPS = [
+    '132.184.55.3',  # IPv4
+    '2800:200:fe10:7aa:c999:8786:6433:29f8',  # IPv6
+    '2800:200:fe10:7aa:f176:6c2b:a1eb:e8f7',
+    '2800:200:fdd0:61d:367c:91f9:7f28:a579',
+    '127.0.0.1'  # IPv6
+]
 
 # Variable global para almacenar clientes (en producción usa base de datos)
 clients_storage = []
@@ -303,10 +311,25 @@ def verify_password(stored_password, provided_password):
         return hashlib.sha256(provided_password.encode()).hexdigest() == ADMIN_PASSWORD_HASH
 
 def get_client_ip():
-    """Obtener IP del cliente considerando proxies"""
-    if request.headers.getlist("X-Forwarded-For"):
-        return request.headers.getlist("X-Forwarded-For")[0].split(',')[0].strip()
-    return request.remote_addr
+    """Obtener la IP real del cliente considerando proxies y headers"""
+    # Verificar headers de proxies/load balancers
+    if request.headers.get('X-Forwarded-For'):
+        # Tomar la primera IP de la lista (IP original del cliente)
+        ip = request.headers.get('X-Forwarded-For').split(',')[0].strip()
+    elif request.headers.get('X-Real-IP'):
+        ip = request.headers.get('X-Real-IP')
+    elif request.headers.get('CF-Connecting-IP'):  # Cloudflare
+        ip = request.headers.get('CF-Connecting-IP')
+    else:
+        ip = request.remote_addr
+    
+    # Limpiar la IP (remover puerto si existe)
+    if ip and ':' in ip and not ip.startswith('['):
+        # Para IPv4 con puerto o IPv6 sin brackets
+        if ip.count(':') == 1:  # IPv4:puerto
+            ip = ip.split(':')[0]
+    
+    return ip
 
 def generate_session_token():
     """Generar token único de sesión"""
@@ -385,19 +408,20 @@ def create_session(username, session_token, device_fingerprint, ip):
     active_sessions[username] = session_data
     print(f"✅ Nueva sesión creada para: {username} desde IP: {ip}")
 
-def update_session_activity(username):
-    """Actualizar última actividad de la sesión"""
-    session_key = f"active_session:{username}"
+def is_admin_ip(client_ip):
+    """Verificar si la IP está en la whitelist de admin"""
+    if not client_ip:
+        return False
     
-    if REDIS_AVAILABLE:
-        existing_session = redis_client.get(session_key)
-        if existing_session:
-            session_data = json.loads(existing_session.decode())
-            session_data['last_activity'] = datetime.now().isoformat()
-            redis_client.setex(session_key, SESSION_TIMEOUT * 60, json.dumps(session_data))
-    else:
-        if username in active_sessions:
-            active_sessions[username]['last_activity'] = datetime.now().isoformat()
+    # Normalizar la IP para comparación
+    normalized_ip = client_ip.strip().lower()
+    
+    # Verificar contra cada IP autorizada
+    for admin_ip in ADMIN_IPS:
+        if normalized_ip == admin_ip.strip().lower():
+            return True
+    
+    return False
 
 def validate_session(username, session_token, device_fingerprint):
     """Validar sesión activa"""
@@ -1581,15 +1605,24 @@ def ordenar_servicios(servicios):
 
     return servicios_ordenados
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/admin-secure-panel', methods=['GET', 'POST'])
 def login():
+    client_ip = get_client_ip()
+    
+    # VERIFICACIÓN CRÍTICA: Solo permitir IPs autorizadas
+    if not is_admin_ip(client_ip):
+        print(f"🚫 Acceso DENEGADO desde IP no autorizada: {client_ip}")
+        # Retornar 404 para ocultar la existencia del endpoint
+        abort(404)
+    
+    print(f"✅ Acceso autorizado desde IP: {client_ip}")
+    
+    # Tu código de login actual (sin cambios)
     if session.get('logged_in'):
         print(f"ℹ️ Usuario ya logueado redirigiendo...")
         return redirect(url_for('admin_servicios'))
 
-    client_ip = get_client_ip()
-    
-    # Verificar si IP está bloqueada
+    # Verificar si IP está bloqueada por intentos fallidos
     if is_ip_locked(client_ip):
         remaining_minutes = get_remaining_lockout_time(client_ip)
         flash(f'IP bloqueada por intentos fallidos. Tiempo restante: {remaining_minutes} minutos.', 'error')
@@ -1600,7 +1633,7 @@ def login():
         usuario = request.form.get('username', '').strip()
         clave = request.form.get('password', '')
         
-        print(f"🔐 Intento de login desde IP: {client_ip}, Usuario: {usuario}")
+        print(f"🔐 Intento de login desde IP autorizada: {client_ip}, Usuario: {usuario}")
         
         if not usuario or not clave:
             flash('Usuario y contraseña son requeridos', 'error')
@@ -1629,12 +1662,21 @@ def login():
             
             clear_failed_attempts(client_ip)
             flash('Has iniciado sesión correctamente', 'success')
+            print(f"✅ Login exitoso para: {usuario} desde IP: {client_ip}")
             return redirect(url_for('admin_servicios'))
         else:
             record_failed_attempt(client_ip)
             flash('Credenciales incorrectas', 'error')
+            print(f"❌ Login fallido para usuario: {usuario} desde IP: {client_ip}")
 
     return render_template('login.html')
+
+@app.route('/login')
+def fake_login():
+    """Endpoint falso que simula no existir"""
+    print(f"⚠️ Acceso a endpoint falso desde IP: {get_client_ip()}")
+    abort(404)  # O redirigir a página principal
+
 
 @app.route('/admin/consultas')
 @login_required
@@ -1910,6 +1952,27 @@ def nueva_obra_historica():
             flash('Error al guardar la obra', 'error')
     
     return render_template('nueva_obra_historica.html')
+
+@app.route('/check-my-ip')
+def check_ip():
+    """Endpoint temporal para verificar qué IP ve el servidor"""
+    client_ip = get_client_ip()
+    is_authorized = is_admin_ip(client_ip)
+    
+    return f"""
+    <h2>Información de IP</h2>
+    <p><strong>Tu IP detectada:</strong> {client_ip}</p>
+    <p><strong>¿Autorizada?:</strong> {'✅ SÍ' if is_authorized else '❌ NO'}</p>
+    <p><strong>Headers relevantes:</strong></p>
+    <ul>
+        <li>X-Forwarded-For: {request.headers.get('X-Forwarded-For', 'No presente')}</li>
+        <li>X-Real-IP: {request.headers.get('X-Real-IP', 'No presente')}</li>
+        <li>CF-Connecting-IP: {request.headers.get('CF-Connecting-IP', 'No presente')}</li>
+        <li>Remote-Addr: {request.remote_addr}</li>
+    </ul>
+    <hr>
+    <p><em>Elimina esta ruta en producción</em></p>
+    """
 
 @app.route('/obras_historicas/editar/<int:obra_id>', methods=['GET', 'POST'])
 @login_required

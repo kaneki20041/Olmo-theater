@@ -13,7 +13,29 @@
       "year": 2018,
       "description": "Inspirado en la emoción que mantiene nuestros sueños y nos impulsa a alcanzarlos, Ilusión narra las peripecias que vive Max, un niño de 7 años...",
       "image": "/static/images/obras/0ae7e5f282f04d0eb2abb51f0618390f.png"
+    },
+    {
+      "id": 3,
+      "title": "aaaa",
+      "year": 2025,
+      "description": "uu",
+      "image": "/static/images/obras/e6fe26a069f94ba6828fa47cf0858e41.jpg"
     }
   ],
-  "proyectos": []
+  "proyectos": [
+    {
+      "id": 4,
+      "title": "uu",
+      "year": 2025,
+      "description": "uu",
+      "image": "/static/images/obras/c3811c2b429545f3a09c166d30f7c51b.jpg"
+    },
+    {
+      "id": 5,
+      "title": "Holaaaa",
+      "year": 2020,
+      "description": "obra para todas las edades",
+      "image": "/static/images/obras/ffc5a30280694dc9a1b3a216dae54a14.jpeg"
+    }
+  ]
 }
