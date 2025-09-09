@@ -47,14 +47,37 @@ app.config['UPLOAD_FOLDER_SERVICIOS'] = UPLOAD_FOLDER_SERVICIOS
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB máximo
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
+# Configuración completa de IPs autorizadas
 ADMIN_IPS = [
-    '132.184.55.3',  # IPv4
-    '2800:200:fe10:7aa:c999:8786:6433:29f8',  # IPv6
-    '2800:200:fe10:7aa:f176:6c2b:a1eb:e8f7',
-    '2800:200:fdd0:61d:367c:91f9:7f28:a579',
-    '2800:200:fdd0:61d:ec5d:4af1:28fc:357a',
-    '2800:200:fdd0:61d:e8b5:1b18:a5ee:1df4',
-    '179.7.16.124 ' # IPv6
+    # === TUS IPs ACTUALES ===
+    '179.7.16.124',  # Tu IPv4 principal actual
+    '2800:200:fdd0:61d:e8b5:1b18:a5ee:1df4',  # Tu IPv6 principal actual
+    
+    # === NUEVAS IPs QUE QUIERES AGREGAR ===
+    # Grupo 1
+    '2800:200:fe10:7aa:4932:9542:2209:e5ef',  # Nueva IPv6
+    '179.6.26.103',  # Nueva IPv4 (aparece 3 veces, solo necesitas una entrada)
+    
+    # Grupo 2 (misma IPv4, diferente IPv6)
+    '2800:200:fe10:7aa:3093:2cff:3edd:d4d6',  # Nueva IPv6
+    # '179.6.26.103' ya está arriba, no repetir
+    
+    # Grupo 3 (misma IPv4, diferente IPv6)  
+    '2800:200:fe10:7aa:c594:8c26:d87c:fe0',  # Nueva IPv6
+    # '179.6.26.103' ya está arriba, no repetir
+    
+    # Grupo 4
+    '132.184.55.165',  # Nueva IPv4
+    
+    # === IPs ANTERIORES (BACKUP) ===
+    '132.184.55.3',  # IPv4 anterior
+    '2800:200:fe10:7aa:c999:8786:6433:29f8',  # IPv6 anterior
+    '2800:200:fe10:7aa:f176:6c2b:a1eb:e8f7',  # IPv6 anterior  
+    '2800:200:fdd0:61d:ec5d:4af1:28fc:357a',  # Tu IPv6 anterior
+    
+    # === DESARROLLO LOCAL (remover en producción) ===
+    '127.0.0.1',  # Localhost IPv4
+    '::1',        # Localhost IPv6
 ]
 
 # Variable global para almacenar clientes (en producción usa base de datos)
